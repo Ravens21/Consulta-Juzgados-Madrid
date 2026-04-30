@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProcurApp Madrid – Prototipo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+  :root{--navy:#0d1b2a;--navy2:#1a2e45;--gold:#c9a84c;--gold-light:#e8c97a;--cream:#f5f0e8;--surface:#fff;--surface2:#f7f5f1;--text:#0d1b2a;--text2:#5a6a7a;--success:#2e8b57;--danger:#c0392b;--warn:#e67e22;--border:#e2ddd5;--radius:14px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:#d8d3c8;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px}
+  .phone-frame{width:390px;height:780px;background:var(--surface);border-radius:40px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3),inset 0 0 0 1px rgba(0,0,0,.1);position:relative;display:flex;flex-direction:column}
+  .status-bar{background:var(--navy);color:#fff;font-size:11px;font-weight:500;padding:12px 24px 8px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+  .screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+  .screen.active{display:flex}
+  /* LOGIN */
+  .login-bg{background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 60%,#1e3d5a 100%);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;gap:32px}
+  .login-icon{width:72px;height:72px;background:var(--gold);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;box-shadow:0 8px 32px rgba(201,168,76,.4)}
+  .login-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:24px;width:100%;display:flex;flex-direction:column;gap:14px}
+  .inp{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:13px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;width:100%}
+  .inp::placeholder{color:rgba(255,255,255,.4)}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;border-radius:12px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:transform .1s,box-shadow .2s;box-shadow:0 4px 20px rgba(201,168,76,.35)}
+  .btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(201,168,76,.45)}
+  .btn-gold:active{transform:translateY(0)}
+  .login-link{color:var(--gold-light);font-size:13px;text-align:center;cursor:pointer;text-decoration:underline}
+  /* HEADER */
+  .app-header{background:var(--navy);padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .app-header h2{font-family:'DM Serif Display',serif;color:#fff;font-size:20px}
+  .hico{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;border:none;transition:background .2s}
+  .hico:hover{background:rgba(255,255,255,.2)}
+  /* TABS */
+  .tabs{display:flex;background:var(--navy2);padding:0 8px 8px;gap:4px;flex-shrink:0}
+  .tab{flex:1;padding:8px 4px;font-size:11px;font-weight:500;color:rgba(255,255,255,.5);cursor:pointer;border-radius:8px;text-align:center;transition:all .2s;background:transparent;border:none;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .tab .ti{font-size:17px}
+  .tab.active{background:rgba(201,168,76,.15);color:var(--gold-light)}
+  /* SCROLL */
+  .scroll-content{flex:1;overflow-y:auto;background:var(--surface2);padding:16px;display:flex;flex-direction:column;gap:12px}
+  .scroll-content::-webkit-scrollbar{width:3px}
+  .scroll-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  /* CARDS */
+  .card{background:#fff;border-radius:var(--radius);padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid var(--border)}
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+  .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+  .card-title{font-size:14px;font-weight:600;color:var(--navy);line-height:1.3;flex:1;margin-right:8px}
+  .badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+  .bv{background:#e8f4fd;color:#1a6fa8}.bg_{background:#fef3e2;color:#b7660a}.bok{background:#e8f8ef;color:#1e7a45}.bpend{background:#fff3e0;color:#e67e22}
+  .card-meta{display:flex;gap:12px;flex-wrap:wrap}
+  .mi{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text2)}
+  .mi span{font-size:14px}
+  .card-footer{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .price{font-size:16px;font-weight:700;color:var(--navy)}
+  .price small{font-size:11px;font-weight:400;color:var(--text2)}
+  .proc-info{display:flex;align-items:center;gap:8px}
+  .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+  .av-n{background:var(--navy2)}.av-g{background:var(--gold);color:var(--navy)}
+  .stars{color:var(--gold);font-size:12px}
+  /* SECTION */
+  .sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+  .sec-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text2)}
+  .btn-sm{font-size:12px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+  /* FAB */
+  .fab{position:absolute;bottom:72px;right:20px;width:52px;height:52px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--navy);cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,.5);border:none;transition:transform .2s;z-index:10}
+  .fab:hover{transform:scale(1.08)}
+  /* DETAIL HEADER */
+  .det-hdr{background:var(--navy);padding:16px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .back{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;border:none;flex-shrink:0}
+  .det-hdr h3{font-family:'DM Serif Display',serif;color:#fff;font-size:18px}
+  .det-hdr p{color:rgba(255,255,255,.6);font-size:12px;margin-top:2px}
+  /* INFO BLOCK */
+  .info-block{background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border)}
+  .info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--surface2);font-size:13px}
+  .info-row:last-child{border-bottom:none}
+  .info-row .lbl{color:var(--text2)}.info-row .val{font-weight:600;color:var(--navy);text-align:right;max-width:60%}
+  .locked{background:var(--surface2);border-radius:var(--radius);padding:20px;text-align:center;border:2px dashed var(--border)}
+  .locked .li{font-size:32px;margin-bottom:8px}
+  .locked p{font-size:13px;color:var(--text2);line-height:1.5}
+  .btn-primary{background:var(--navy);color:#fff;border:none;border-radius:12px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:background .2s}
+  .btn-primary:hover{background:var(--navy2)}
+  .btn-outline{background:transparent;color:var(--navy);border:2px solid var(--navy);border-radius:12px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%}
+  /* FORM */
+  .form-section{background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border)}
+  .flbl{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+  .finp{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--navy);outline:none;transition:border-color .2s;background:var(--surface2);margin-bottom:12px}
+  .finp:focus{border-color:var(--gold);background:#fff}
+  .form-row{display:flex;gap:10px}
+  .form-row .form-group{flex:1}
+  .form-group{margin-bottom:0}
+  .type-sel{display:flex;gap:8px;margin-bottom:12px}
+  .type-btn{flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text2);text-align:center;transition:all .2s}
+  .sel-vista{border-color:#1a6fa8;color:#1a6fa8;background:#e8f4fd}.sel-gestion{border-color:#b7660a;color:#b7660a;background:#fef3e2}
+  /* RANKING */
+  .rank-card{background:#fff;border-radius:var(--radius);padding:14px 16px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+  .rn{font-family:'DM Serif Display',serif;font-size:24px;min-width:28px;text-align:center}
+  .rank-info{flex:1}
+  .rank-name{font-size:14px;font-weight:600;color:var(--navy)}
+  .rank-sub{font-size:11px;color:var(--text2);margin-top:2px}
+  .rank-stats{text-align:right}
+  .rscore{font-size:18px;font-weight:700;color:var(--navy)}
+  .rlbl{font-size:10px;color:var(--text2)}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .pill{background:var(--surface2);border-radius:20px;padding:3px 8px;font-size:10px;color:var(--text2)}
+  /* PROFILE */
+  .pay-opt{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+  .pay-opt:last-child{border-bottom:none}
+  .pay-l{display:flex;align-items:center;gap:10px}
+  .pay-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--surface2)}
+  .pay-name{font-size:14px;font-weight:600;color:var(--navy)}
+  .pay-detail{font-size:11px;color:var(--text2);margin-top:2px}
+  .toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+  .toggle.on{background:var(--success)}
+  .toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+  .toggle.on::after{left:23px}
+  /* BOTTOM SHEET */
+  .overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:100;backdrop-filter:blur(2px)}
+  .overlay.show{display:flex}
+  .sheet{background:#fff;border-radius:24px 24px 0 0;padding:20px 20px 36px;width:100%;display:flex;flex-direction:column;gap:14px;animation:slideUp .3s ease}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 8px}
+  .sheet-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--navy)}
+  .sheet-body{font-size:14px;color:var(--text2);line-height:1.6}
+  .acc-data{background:var(--surface2);border-radius:12px;padding:14px;border-left:4px solid var(--gold)}
+  .acc-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+  .acc-row .k{color:var(--text2)}.acc-row .v{font-weight:600;color:var(--navy)}
+  /* SUMMARY BAR */
+  .sum-bar{display:flex;gap:8px;background:var(--navy2);border-radius:12px}
+  .sum-item{flex:1;background:rgba(255,255,255,.08);border-radius:10px;padding:8px;text-align:center}
+  .sum-num{font-size:18px;font-weight:700;color:var(--gold-light)}
+  .sum-lbl{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+
+  .finp-valid{border-color:var(--success)!important;background:#f0faf4!important}
+  .finp-error{border-color:var(--danger)!important;background:#fff5f5!important}
+  .finp-warn{border-color:var(--warn)!important;background:#fffbf0!important}
+  .val-msg{font-size:12px;border-radius:8px;padding:8px 12px;margin-top:-8px;margin-bottom:10px;display:none;align-items:center;gap:8px}
+  .val-msg.show{display:flex}
+  .val-ok{background:#e8f8ef;color:#1e7a45}
+  .val-err{background:#fdf0f0;color:#c0392b}
+  .val-warn{background:#fff8e6;color:#7a5c00}
+  .name-preview{font-weight:600;font-size:13px}
+
+  /* PUSH NOTIFICATION BANNER */
+  .push-banner{position:absolute;top:-110px;left:12px;right:12px;background:#fff;border-radius:16px;
+    padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.22);z-index:200;
+    display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);
+    transition:top .45s cubic-bezier(.34,1.56,.64,1)}
+  .push-banner.show{top:12px}
+  .push-app-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--navy2));
+    border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex-shrink:0}
+  .push-content{flex:1;min-width:0}
+  .push-app-name{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;
+    letter-spacing:.6px;margin-bottom:2px;display:flex;justify-content:space-between}
+  .push-title{font-size:13px;font-weight:700;color:var(--navy);line-height:1.3}
+  .push-body{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .push-close{font-size:16px;color:var(--text2);cursor:pointer;flex-shrink:0;
+    background:none;border:none;padding:0;line-height:1}
+
+  /* EMAIL PREVIEW MODAL */
+  .email-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);
+    display:none;align-items:center;justify-content:center;z-index:300;padding:16px}
+  .email-overlay.show{display:flex}
+  .email-modal{background:#fff;border-radius:20px;width:100%;max-height:88%;
+    display:flex;flex-direction:column;overflow:hidden;animation:slideUp .3s ease}
+  .email-modal-hdr{background:var(--navy);padding:16px 18px;display:flex;
+    align-items:center;gap:10px;flex-shrink:0}
+  .email-modal-hdr h4{font-family:'DM Serif Display',serif;color:#fff;font-size:16px;flex:1}
+  .email-modal-body{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+  .email-tabs{display:flex;gap:6px;flex-shrink:0}
+  .etab{flex:1;padding:8px;border-radius:8px;border:2px solid var(--border);
+    background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+    color:var(--text2);cursor:pointer;text-align:center;transition:all .2s}
+  .etab.active{border-color:var(--navy);color:var(--navy);background:var(--surface2)}
+  .email-card{background:var(--surface2);border-radius:12px;padding:14px;border:1px solid var(--border)}
+  .email-field{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+  .email-field:last-of-type{border-bottom:none;margin-bottom:8px}
+  .ef-label{color:var(--text2);font-weight:600;min-width:44px}
+  .ef-value{color:var(--navy);word-break:break-all}
+  .email-preview{background:#fff;border-radius:10px;padding:14px;border:1px solid var(--border);
+    font-size:12px;line-height:1.7;color:var(--text)}
+  .email-preview .ep-hi{font-weight:600;color:var(--navy);margin-bottom:8px}
+  .email-preview .ep-data{background:var(--surface2);border-left:3px solid var(--gold);
+    padding:10px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:11.5px}
+  .email-preview .ep-data div{padding:3px 0}
+  .email-preview .ep-footer{font-size:11px;color:var(--text2);margin-top:10px;
+    border-top:1px solid var(--border);padding-top:8px}
+  .notif-type-badge{display:inline-flex;align-items:center;gap:4px;
+    background:#e8f8ef;color:#1e7a45;border-radius:20px;padding:3px 10px;
+    font-size:11px;font-weight:600;margin-bottom:8px}
+  .chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:500;color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="status-bar"><span>9:41</span><span>●●● ᯤ 🔋</span></div>
+
+  <!-- LOGIN -->
+  <div id="s-login" class="screen active">
+    <div class="login-bg">
+      <div style="text-align:center">
+        <div class="login-icon">⚖️</div>
+        <h1 style="font-family:'DM Serif Display',serif;color:#fff;font-size:28px;letter-spacing:-.5px">ProcurApp</h1>
+        <p style="color:rgba(255,255,255,.6);font-size:13px;margin-top:4px">Red de procuradores · Madrid</p>
+      </div>
+      <div class="login-card">
+        <input class="inp" type="email" placeholder="ICAM Nº o email colegiado" value="amancio@icam.es">
+        <input class="inp" type="password" placeholder="Contraseña" value="••••••••">
+        <button class="btn-gold" onclick="go('home')">Entrar</button>
+        <div class="login-link" onclick="go('register')">¿Primera vez? Crear cuenta</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="s-register" class="screen">
+    <div class="det-hdr"><button class="back" onclick="go('login')">←</button><div><h3>Nueva cuenta</h3><p>Datos del procurador</p></div></div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <label class="flbl">Datos personales</label>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:10px">Los campos marcados con <span style="color:var(--danger);font-weight:700">*</span> son obligatorios</p>
+
+        <label class="flbl">Nombre completo <span style="color:var(--danger)">*</span></label>
+        <input class="finp" id="inp-nombre-reg" placeholder="Escribe tu nombre tal como figura en el ICPM" value="" oninput="resetColeValidation()">
+        <label class="flbl">Nº de colegiado ICPM <span style="color:var(--danger)">*</span></label>
+        <input class="finp" id="inp-cole" placeholder="Ej: 2847" value="" required oninput="validarColegiado(this.value)" onblur="validarColegiado(this.value)">
+        <div class="val-msg val-ok" id="msg-cole-ok"><span>✅</span><span class="name-preview" id="cole-nombre"></span></div>
+        <div class="val-msg val-warn" id="msg-cole-warn"><span>⚠️</span><span id="cole-warn-txt"></span></div>
+        <div class="val-msg val-err" id="msg-cole-err"><span>❌</span><span id="cole-err-txt"></span></div>
+        <label class="flbl">Email <span style="color:var(--danger)">*</span></label>
+        <input class="finp" id="inp-email-reg" type="email" placeholder="correo@ejemplo.com" value="" required>
+        <label class="flbl">Teléfono <span style="color:var(--danger)">*</span></label>
+        <input class="finp" type="tel" placeholder="+34 6XX XXX XXX" value="" required>
+        <label class="flbl">Contraseña</label>
+        <input class="finp" type="password" placeholder="Mínimo 8 caracteres">
+        <div style="background:#fff8e6;border:1px solid #f0d080;border-radius:10px;padding:10px 12px;font-size:12px;color:#7a5c00;margin-top:-4px">
+          🔒 Tu número de colegiado es verificado contra el censo del ICPM. El email y teléfono deben coincidir con los datos colegiales.
+        </div>
+      </div>
+      <div class="form-section">
+        <label class="flbl">💳 Métodos de cobro</label>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Configura cómo quieres recibir el pago cuando hagas sustituciones o gestiones</p>
+        <div class="pay-opt">
+          <div class="pay-l"><div class="pay-ico">📱</div><div><div class="pay-name">Bizum</div><input class="finp" placeholder="Nº teléfono" style="margin:4px 0 0;font-size:12px;padding:8px 10px"></div></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="pay-opt">
+          <div class="pay-l"><div class="pay-ico">🅿️</div><div><div class="pay-name">PayPal</div><input class="finp" placeholder="Email PayPal" style="margin:4px 0 0;font-size:12px;padding:8px 10px"></div></div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="pay-opt">
+          <div class="pay-l"><div class="pay-ico">🏦</div><div><div class="pay-name">Transferencia</div><input class="finp" placeholder="IBAN" style="margin:4px 0 0;font-size:12px;padding:8px 10px" value="ES91 2100 0418 45 0200051332"></div></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+      <button class="btn-gold" onclick="go('home')">Crear cuenta</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="s-home" class="screen">
+    <div class="app-header">
+      <h2>ProcurApp</h2>
+      <div style="display:flex;gap:8px">
+        <button class="hico" onclick="go('notif')">🔔</button>
+        <button class="hico" onclick="go('profile')">👤</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" id="t-vistas" onclick="tab('vistas')"><span class="ti">🏛️</span>Vistas</button>
+      <button class="tab" id="t-gestiones" onclick="tab('gestiones')"><span class="ti">📋</span>Gestiones</button>
+      <button class="tab" id="t-mis" onclick="tab('mis')"><span class="ti">📁</span>Mis</button>
+      <button class="tab" id="t-ranking" onclick="tab('ranking')"><span class="ti">🏆</span>Ranking</button>
+    </div>
+
+    <!-- TAB VISTAS -->
+    <div id="tc-vistas" class="scroll-content">
+      <div class="sum-bar"><div class="sum-item"><div class="sum-num">12</div><div class="sum-lbl">Disponibles</div></div><div class="sum-item"><div class="sum-num">3</div><div class="sum-lbl">Urgentes</div></div><div class="sum-item"><div class="sum-num">€30</div><div class="sum-lbl">Media</div></div></div>
+      <div class="sec-hdr"><span class="sec-title">Urgentes</span></div>
+      <div class="card" onclick="go('det-vista')">
+        <div class="card-header"><div class="card-title">JPI nº 15 · Sala 2 · Plaza de Castilla</div><span class="badge bv">Vista</span></div>
+        <div class="card-meta"><div class="mi"><span>📅</span>Mañana 10:30h</div><div class="mi"><span>📍</span>Plaza de Castilla</div></div>
+        <div class="card-footer">
+          <div class="proc-info"><div class="av av-n">RG</div><div><div style="font-size:12px;font-weight:600">R. González</div><div class="stars">★★★★★ <span style="color:var(--text2);font-size:10px">(47)</span></div></div></div>
+          <div class="price">35€ <small>/vista</small></div>
+        </div>
+      </div>
+      <div class="card" onclick="go('det-vista')">
+        <div class="card-header"><div class="card-title">TSJ · Sala 3ª Social · Pº Castellana 51</div><span class="badge bv">Vista</span></div>
+        <div class="card-meta"><div class="mi"><span>📅</span>Jue 14 Mayo 09:00h</div></div>
+        <div class="card-footer">
+          <div class="proc-info"><div class="av av-g">ML</div><div><div style="font-size:12px;font-weight:600">M. López</div><div class="stars">★★★★☆ <span style="color:var(--text2);font-size:10px">(23)</span></div></div></div>
+          <div class="price">30€ <small>/vista</small></div>
+        </div>
+      </div>
+      <div class="sec-hdr"><span class="sec-title">Próximas</span></div>
+      <div class="card" onclick="go('det-vista')">
+        <div class="card-header"><div class="card-title">Juzgado Mercantil nº 3 · C/ Fúcar, 1</div><span class="badge bv">Vista</span></div>
+        <div class="card-meta"><div class="mi"><span>📅</span>16 Mayo 11:00h</div></div>
+        <div class="card-footer">
+          <div class="proc-info"><div class="av av-n">PP</div><div><div style="font-size:12px;font-weight:600">P. Paredes</div><div class="stars">★★★★★ <span style="color:var(--text2);font-size:10px">(89)</span></div></div></div>
+          <div class="price">28€ <small>/vista</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB GESTIONES -->
+    <div id="tc-gestiones" class="scroll-content" style="display:none">
+      <div class="sum-bar"><div class="sum-item"><div class="sum-num">8</div><div class="sum-lbl">Disponibles</div></div><div class="sum-item"><div class="sum-num">2</div><div class="sum-lbl">Hoy</div></div><div class="sum-item"><div class="sum-num">€15</div><div class="sum-lbl">Media</div></div></div>
+      <div class="sec-hdr"><span class="sec-title">Disponibles</span></div>
+      <div class="card" onclick="go('det-gestion')">
+        <div class="card-header"><div class="card-title">JPI nº 8 · Presentación escrito · Urgente</div><span class="badge bg_">Gestión</span></div>
+        <div class="card-meta"><div class="mi"><span>📍</span>C/ Fúcar, 1</div><div class="mi"><span>⏰</span>Hoy antes 14:00h</div></div>
+        <div class="card-footer">
+          <div class="proc-info"><div class="av av-n">CA</div><div><div style="font-size:12px;font-weight:600">C. Andrés</div><div class="stars">★★★★★ <span style="color:var(--text2);font-size:10px">(61)</span></div></div></div>
+          <div class="price">15€</div>
+        </div>
+      </div>
+      <div class="card" onclick="go('det-gestion')">
+        <div class="card-header"><div class="card-title">AP Sección 12 · Recogida resolución</div><span class="badge bg_">Gestión</span></div>
+        <div class="card-meta"><div class="mi"><span>📍</span>C/ Gran Vía 13</div><div class="mi"><span>📅</span>Mañana</div></div>
+        <div class="card-footer">
+          <div class="proc-info"><div class="av av-g">FS</div><div><div style="font-size:12px;font-weight:600">F. Santos</div><div class="stars">★★★★☆ <span style="color:var(--text2);font-size:10px">(18)</span></div></div></div>
+          <div class="price">15€</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB MIS SOLICITUDES -->
+    <div id="tc-mis" class="scroll-content" style="display:none">
+      <div class="sec-hdr"><span class="sec-title">Activas</span><button class="btn-sm" onclick="go('nueva')">+ Nueva</button></div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">JPI nº 15 · Mañana 10:30h</div><span class="badge bpend">Pendiente</span></div>
+        <div class="card-meta"><div class="mi"><span>🔍</span>Buscando sustituto</div><div class="mi"><span>💰</span>120€</div></div>
+      </div>
+      <div class="card" onclick="showSheet('sh-mis')">
+        <div class="card-header"><div class="card-title">Juz. Mercantil nº 1 · Recogida cédula</div><span class="badge bok">✓ Aceptada</span></div>
+        <div class="card-meta"><div class="mi"><span>👤</span>A. Ruiz te sustituye</div><div class="mi"><span>💰</span>40€</div></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--success)">▶ Toca para ver los datos enviados</div>
+      </div>
+      <div class="sec-hdr" style="margin-top:4px"><span class="sec-title">Historial</span></div>
+      <div class="card" style="opacity:.7">
+        <div class="card-header"><div class="card-title">AP Sección 8 · Vista oral</div><span class="badge" style="background:#e8e3d8;color:#888">Completada</span></div>
+        <div class="card-meta"><div class="mi"><span>✓</span>Pagado · 28 Abr</div><div class="mi"><span>💰</span>90€</div></div>
+      </div>
+    </div>
+
+    <!-- TAB RANKING -->
+    <div id="tc-ranking" class="scroll-content" style="display:none">
+      <div class="sec-hdr"><span class="sec-title">Top procuradores · Madrid</span></div>
+      <div class="rank-card"><div class="rn" style="color:#c9a84c">🥇</div><div class="av av-n" style="width:40px;height:40px;font-size:15px">PP</div><div class="rank-info"><div class="rank-name">P. Paredes Moreno</div><div class="pills"><span class="pill">⚡ Pago rápido</span><span class="pill">89 servicios</span><span class="pill">100% puntual</span></div></div><div class="rank-stats"><div class="rscore">9.8</div><div class="rlbl">puntuación</div><div class="stars" style="font-size:10px;margin-top:2px">★★★★★</div></div></div>
+      <div class="rank-card"><div class="rn" style="color:#9e9e9e">🥈</div><div class="av av-g" style="width:40px;height:40px;font-size:15px">CA</div><div class="rank-info"><div class="rank-name">C. Andrés Vega</div><div class="pills"><span class="pill">61 servicios</span><span class="pill">⭐ Muy fiable</span></div></div><div class="rank-stats"><div class="rscore">9.5</div><div class="rlbl">puntuación</div><div class="stars" style="font-size:10px;margin-top:2px">★★★★★</div></div></div>
+      <div class="rank-card"><div class="rn" style="color:#cd7f32">🥉</div><div class="av av-n" style="width:40px;height:40px;font-size:15px">RG</div><div class="rank-info"><div class="rank-name">R. González Prieto</div><div class="pills"><span class="pill">47 servicios</span><span class="pill">💳 Bizum 24h</span></div></div><div class="rank-stats"><div class="rscore">9.2</div><div class="rlbl">puntuación</div><div class="stars" style="font-size:10px;margin-top:2px">★★★★★</div></div></div>
+      <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:var(--radius);padding:16px;color:#fff;margin-top:4px">
+        <div style="font-size:12px;opacity:.7;margin-bottom:4px">Tu posición</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-family:'DM Serif Display',serif;font-size:18px">Amancio A. Vicente</div><div style="opacity:.7;font-size:12px;margin-top:4px">Puesto #12 · 4 servicios</div></div>
+          <div style="text-align:right"><div style="font-size:24px;font-weight:700;color:var(--gold-light)">7.4</div><div class="stars">★★★★☆</div></div>
+        </div>
+      </div>
+    </div>
+    <button class="fab" onclick="go('nueva')">+</button>
+  </div>
+
+  <!-- DETALLE VISTA -->
+  <div id="s-det-vista" class="screen">
+    <div class="det-hdr"><button class="back" onclick="go('home')">←</button><div><h3>Sustitución en vista</h3><p>JPI nº 15 · Plaza de Castilla</p></div></div>
+    <div class="scroll-content">
+      <div class="info-block">
+        <div class="info-row"><span class="lbl">Tribunal</span><span class="val">Juzgado 1ª Instancia nº 15</span></div>
+        <div class="info-row"><span class="lbl">Sede</span><span class="val">Plaza de Castilla, 1 · Sala 2</span></div>
+        <div class="info-row"><span class="lbl">Fecha y hora</span><span class="val">Mañana · 10:30h</span></div>
+        <div class="info-row"><span class="lbl">Importe</span><span class="val" style="color:var(--success);font-size:16px">30 €</span></div>
+        <div class="info-row"><span class="lbl">Pago</span><span class="val">💳 Bizum · 🏦 Transf.</span></div>
+      </div>
+      <div class="info-block">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div class="av av-n" style="width:44px;height:44px;font-size:16px">RG</div>
+          <div><div style="font-size:15px;font-weight:600">R. González Prieto</div><div class="stars">★★★★★ (47 valoraciones)</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Colegiado nº 1834 · ICAM</div></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">⚡ Pago rápido</span><span class="chip">✓ Verificado ICAM</span><span class="chip">47 sustituciones</span></div>
+      </div>
+      <div class="locked"><div class="li">🔒</div><p>Los datos del procedimiento (tipo, número de autos y parte) solo se revelan <strong>tras aceptar</strong> la sustitución.</p></div>
+      <button class="btn-gold" onclick="showSheet('sh-reservar')">Reservar esta sustitución</button>
+      <button class="btn-outline" onclick="go('home')">Volver</button>
+    </div>
+  </div>
+
+  <!-- DETALLE GESTIÓN -->
+  <div id="s-det-gestion" class="screen">
+    <div class="det-hdr"><button class="back" onclick="go('home')">←</button><div><h3>Gestión en juzgado</h3><p>JPI nº 8 · C/ Fúcar, 1</p></div></div>
+    <div class="scroll-content">
+      <div class="info-block">
+        <div class="info-row"><span class="lbl">Juzgado</span><span class="val">Juzgado 1ª Instancia nº 8</span></div>
+        <div class="info-row"><span class="lbl">Sede</span><span class="val">C/ Fúcar, 1 · Madrid</span></div>
+        <div class="info-row"><span class="lbl">Tipo de gestión</span><span class="val">📋 Presentación escrito</span></div>
+        <div class="info-row"><span class="lbl">Plazo límite</span><span class="val" style="color:var(--danger)">Hoy antes 14:00h ⚠️</span></div>
+        <div class="info-row"><span class="lbl">Importe</span><span class="val" style="color:var(--success);font-size:16px">15 €</span></div>
+        <div class="info-row"><span class="lbl">Pago</span><span class="val">🅿️ PayPal</span></div>
+      </div>
+      <div class="locked"><div class="li">🔒</div><p>Los datos del procedimiento y el escrito a presentar solo se revelan <strong>tras aceptar</strong> la gestión.</p></div>
+      <button class="btn-gold" onclick="showSheet('sh-gestion');" >Aceptar esta gestión</button>
+      <button class="btn-outline" onclick="go('home')">Volver</button>
+    </div>
+  </div>
+
+  <!-- NUEVA SOLICITUD -->
+  <div id="s-nueva" class="screen">
+    <div class="det-hdr"><button class="back" onclick="go('home')">←</button><div><h3>Nueva solicitud</h3><p>Sustitución o gestión</p></div></div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <label class="flbl">Tipo</label>
+        <div class="type-sel">
+          <div class="type-btn sel-vista" id="tb-vista" onclick="selTipo('vista')">🏛️ Sustitución<br><small>en vista</small></div>
+          <div class="type-btn" id="tb-gestion" onclick="selTipo('gestion')">📋 Gestión<br><small>en juzgado</small></div>
+        </div>
+      </div>
+      <div class="form-section" id="ff-vista">
+        <label class="flbl">Tribunal</label>
+        <select class="finp"><option>Juzgado de 1ª Instancia nº 15</option><option>Juzgado de 1ª Instancia nº 8</option><option>Juzgado Mercantil nº 1</option><option>Juzgado Mercantil nº 3</option><option>Audiencia Provincial Sección 8</option><option>TSJ · Sala 3ª Social</option><option>Juzgado de lo Social nº 4</option></select>
+        <div class="form-row"><div class="form-group"><label class="flbl">Fecha</label><input class="finp" type="date"></div><div class="form-group"><label class="flbl">Hora</label><input class="finp" type="time" value="10:30"></div></div>
+        <label class="flbl">Sala / Orden</label>
+        <input class="finp" placeholder="Ej: Sala 2, orden 4º">
+        <label class="flbl">Importe (€)</label>
+        <input class="finp" type="number" value="30">
+      </div>
+      <div class="form-section" id="ff-gestion" style="display:none">
+        <label class="flbl">Juzgado</label>
+        <select class="finp"><option>Juzgado de 1ª Instancia nº 8</option><option>Juzgado Mercantil nº 1</option><option>Audiencia Provincial Sección 12</option></select>
+        <label class="flbl">Tipo de gestión</label>
+        <select class="finp" id="sel-gestion-tipo" onchange="toggleOtraGestion(this.value)"><option value="">— Seleccionar tipo —</option><option>Presentación de escrito</option><option>Recogida de copia / resolución</option><option>Solicitud de señalamiento</option><option>Presentación de poder / documento</option><option>Recogida de notificación</option><option>Solicitud de expedición de testimonio</option><option>Presentación de peritos / testigos</option><option value="otra">✏️ Otra gestión (especificar)…</option></select>
+        <div id="otra-gestion-wrap" style="display:none"><label class="flbl">Descripción de la gestión <span style="color:var(--danger)">*</span></label><textarea class="finp" rows="3" placeholder="Describe con detalle la gestión a realizar en el juzgado…"></textarea></div>        <div class="form-row"><div class="form-group"><label class="flbl">Plazo</label><input class="finp" type="date"></div><div class="form-group"><label class="flbl">Hora límite</label><input class="finp" type="time" value="14:00"></div></div>
+        <label class="flbl">Importe (€)</label>
+        <input class="finp" type="number" value="15">
+      </div>
+      <div class="form-section">
+        <label class="flbl">📌 Datos del procedimiento <span style="font-size:10px;font-weight:400;color:var(--text2)">(solo se revelan al aceptante)</span></label>
+        <label class="flbl">Tipo de procedimiento</label>
+        <select class="finp"><option>Juicio Ordinario</option><option>Juicio Verbal</option><option>Procedimiento Monitorio</option><option>Ejecución de Títulos</option><option>Divorcio Contencioso</option><option>Procedimiento Concursal</option><option>Recurso de Apelación</option></select>
+        <label class="flbl">Número de autos</label>
+        <input class="finp" placeholder="Ej: 347/2024">
+        <label class="flbl">Representamos a</label>
+        <select class="finp"><option>Parte actora / demandante</option><option>Parte demandada</option><option>Tercero interesado</option></select>
+        <label class="flbl">Instrucciones</label>
+        <textarea class="finp" rows="3" placeholder="Ej: Llevar escrito firmado, pedir copia sellada..."></textarea>
+      </div>
+      <div class="form-section">
+        <label class="flbl">📄 Modelo de sustitución ICPM <span style="font-size:10px;font-weight:400">(opcional)</span></label>
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer"><div style="font-size:28px;margin-bottom:6px">📎</div><div style="font-size:13px;color:var(--text2)">Toca para adjuntar PDF</div><div style="font-size:11px;color:var(--border);margin-top:4px">Modelo oficial del Colegio de Procuradores de Madrid</div></div>
+      </div>
+      <button class="btn-gold" onclick="go('home')">Publicar solicitud</button>
+    </div>
+  </div>
+
+  <!-- PERFIL -->
+  <div id="s-profile" class="screen">
+    <div class="det-hdr" style="padding-bottom:0"><button class="back" onclick="go('home')">←</button><div><h3>Mi perfil</h3></div></div>
+    <div style="background:linear-gradient(160deg,var(--navy),var(--navy2));padding:20px;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="av av-g" style="width:64px;height:64px;font-size:24px">AA</div>
+        <div><div style="font-family:'DM Serif Display',serif;color:#fff;font-size:20px">Amancio A. Vicente</div><div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:2px">Colegiado nº 2847 · ICAM</div><div class="stars" style="margin-top:4px">★★★★☆ <span style="color:rgba(255,255,255,.5);font-size:11px">(4)</span></div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <div class="sum-item"><div class="sum-num">4</div><div class="sum-lbl">Servicios</div></div>
+        <div class="sum-item"><div class="sum-num">2</div><div class="sum-lbl">Ofertadas</div></div>
+        <div class="sum-item"><div class="sum-num">7.4</div><div class="sum-lbl">Puntuación</div></div>
+        <div class="sum-item"><div class="sum-num">#12</div><div class="sum-lbl">Ranking</div></div>
+      </div>
+    </div>
+    <div class="scroll-content">
+      <div class="info-block">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:10px">💳 Métodos de cobro</div>
+        <div class="pay-opt"><div class="pay-l"><div class="pay-ico">📱</div><div><div class="pay-name">Bizum</div><div class="pay-detail">+34 612 345 678</div></div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="pay-opt"><div class="pay-l"><div class="pay-ico">🅿️</div><div><div class="pay-name">PayPal</div><div class="pay-detail">amancio@icam.es</div></div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="pay-opt"><div class="pay-l"><div class="pay-ico">🏦</div><div><div class="pay-name">Transferencia</div><div class="pay-detail">ES91 2100 ···· ···· 1332</div></div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="info-block">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:10px">⚙️ Preferencias</div>
+        <div class="pay-opt"><div class="pay-l"><div class="pay-ico">🔔</div><div><div class="pay-name">Notificaciones push</div><div class="pay-detail">Nuevas solicitudes en mi zona</div></div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="pay-opt"><div class="pay-l"><div class="pay-ico">📍</div><div><div class="pay-name">Solo juzgados cercanos</div><div class="pay-detail">Radio 2km desde mi oficina</div></div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <button class="btn-primary" onclick="go('login')">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIONES -->
+  <div id="s-notif" class="screen">
+    <div class="det-hdr"><button class="back" onclick="go('home')">←</button><div><h3>Notificaciones</h3></div></div>
+    <div class="scroll-content">
+      <div class="card" style="border-left:4px solid var(--gold)"><div style="font-size:12px;color:var(--text2);margin-bottom:4px">Hace 5 min</div><div style="font-size:14px;font-weight:600;color:var(--navy)">✅ Gestión aceptada</div><div style="font-size:13px;color:var(--text2);margin-top:4px">A. Ruiz ha aceptado tu gestión en el Juzgado Mercantil nº 1. Se han enviado los datos del procedimiento.</div></div>
+      <div class="card"><div style="font-size:12px;color:var(--text2);margin-bottom:4px">Hace 1 hora</div><div style="font-size:14px;font-weight:600;color:var(--navy)">🆕 Nueva sustitución cerca</div><div style="font-size:13px;color:var(--text2);margin-top:4px">JPI nº 22 · Mañana 11:00h · 110€ · 0.3 km de tu despacho</div></div>
+      <div class="card" style="opacity:.6"><div style="font-size:12px;color:var(--text2);margin-bottom:4px">Ayer</div><div style="font-size:14px;font-weight:600;color:var(--navy)">⭐ Nueva valoración</div><div style="font-size:13px;color:var(--text2);margin-top:4px">R. González te ha valorado con 5 estrellas. ¡Sigue así!</div></div>
+    </div>
+  </div>
+
+  <!-- SHEET: RESERVAR -->
+  <div class="overlay" id="sh-reservar">
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="sheet-title">Confirmar reserva</div>
+      <div class="sheet-body">Vas a reservar la sustitución en <strong>JPI nº 15</strong> para mañana a las <strong>10:30h</strong>. El oferente recibirá una notificación y te enviará los datos del procedimiento.</div>
+      <div class="acc-data"><div class="acc-row"><span class="k">Importe</span><span class="v" style="color:var(--success)">30 €</span></div><div class="acc-row"><span class="k">Pago mediante</span><span class="v">💳 Bizum · 🏦 Transf.</span></div><div class="acc-row"><span class="k">Plazo de pago habitual</span><span class="v">&lt; 24h (verificado)</span></div></div>
+      <button class="btn-gold" onclick="confirmReserva()">Confirmar — los datos se revelan ahora</button>
+      <button class="btn-outline" onclick="closeSheet('sh-reservar')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- SHEET: DATOS REVELADOS VISTA -->
+  <div class="overlay" id="sh-revealed">
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="sheet-title">🔓 Datos del procedimiento</div>
+      <div class="sheet-body">Aquí están los datos del asunto que vas a defender:</div>
+      <div class="acc-data"><div class="acc-row"><span class="k">Tipo procedimiento</span><span class="v">Juicio Ordinario</span></div><div class="acc-row"><span class="k">Número de autos</span><span class="v">347/2024</span></div><div class="acc-row"><span class="k">Parte</span><span class="v">Demandante (actora)</span></div><div class="acc-row"><span class="k">Juzgado</span><span class="v">JPI nº 15 · Sala 2</span></div><div class="acc-row"><span class="k">Vista</span><span class="v">Mañana 10:30h</span></div></div>
+      <button class="btn-primary" onclick="generarOficio()">📄 Generar Oficio de Sustitución ICPM</button>
+      <button class="btn-outline" onclick="closeSheet('sh-revealed')">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- SHEET: DATOS GESTIÓN -->
+  <div class="overlay" id="sh-gestion">
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="sheet-title">🔓 Gestión aceptada</div>
+      <div class="sheet-body">Datos completos de la gestión que debes realizar:</div>
+      <div class="acc-data"><div class="acc-row"><span class="k">Juzgado</span><span class="v">JPI nº 8 · C/ Fúcar, 1</span></div><div class="acc-row"><span class="k">Gestión</span><span class="v">Presentación escrito</span></div><div class="acc-row"><span class="k">Tipo procedimiento</span><span class="v">Monitorio</span></div><div class="acc-row"><span class="k">Nº de autos</span><span class="v">912/2024</span></div><div class="acc-row"><span class="k">Instrucciones</span><span class="v">Pedir copia sellada + acuse</span></div><div class="acc-row"><span class="k">Importe</span><span class="v" style="color:var(--success)">15 € por PayPal</span></div></div>
+      <button class="btn-primary" onclick="closeSheet('sh-gestion');showNotifAndEmail('gestion')">📎 Descargar escrito a presentar</button>
+      <button class="btn-outline" onclick="closeSheet('sh-gestion')">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- SHEET: MIS ACEPTADAS -->
+  <div class="overlay" id="sh-mis">
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="sheet-title">✅ Solicitud aceptada</div>
+      <div class="sheet-body"><strong>A. Ruiz Fernández</strong> ha aceptado tu solicitud. Le has enviado automáticamente los datos del procedimiento.</div>
+      <div class="acc-data"><div class="acc-row"><span class="k">Tipo</span><span class="v">Recogida cédula</span></div><div class="acc-row"><span class="k">Autos</span><span class="v">Ejecut. 214/2023</span></div><div class="acc-row"><span class="k">Sustituto</span><span class="v">A. Ruiz · ★★★★★</span></div><div class="acc-row"><span class="k">Pago</span><span class="v" style="color:var(--warn)">Pendiente · 15 €</span></div></div>
+      <button class="btn-gold" onclick="closeSheet('sh-mis');finalizarServicio()">Confirmar pago realizado ✓</button>
+      <button class="btn-outline" onclick="closeSheet('sh-mis')">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- PUSH NOTIFICATION BANNER -->
+  <div class="push-banner" id="push-banner">
+    <div class="push-app-icon">⚖️</div>
+    <div class="push-content">
+      <div class="push-app-name"><span>ProcurApp Madrid</span><span id="push-time">ahora</span></div>
+      <div class="push-title" id="push-title">Sustitución aceptada</div>
+      <div class="push-body" id="push-body">A. Ruiz ha aceptado tu sustitución en JPI nº 15</div>
+    </div>
+    <button class="push-close" onclick="closePush()">✕</button>
+  </div>
+
+  <!-- EMAIL PREVIEW MODAL -->
+  <div class="email-overlay" id="email-overlay">
+    <div class="email-modal">
+      <div class="email-modal-hdr">
+        <span style="font-size:22px">✉️</span>
+        <h4>Emails enviados automáticamente</h4>
+        <button class="push-close" style="color:#fff" onclick="closeEmail()">✕</button>
+      </div>
+      <div class="email-modal-body">
+        <p style="font-size:12px;color:var(--text2)">Se han enviado dos correos de forma simultánea:</p>
+        <div class="email-tabs">
+          <button class="etab active" id="etab-1" onclick="switchEmail(1)">📨 Al oferente</button>
+          <button class="etab" id="etab-2" onclick="switchEmail(2)">📨 Al sustituto</button>
+        </div>
+        <!-- EMAIL 1: OFERENTE -->
+        <div id="email-1">
+          <div class="email-card">
+            <div class="email-field"><span class="ef-label">De:</span><span class="ef-value">noreply@procurapp.es</span></div>
+            <div class="email-field"><span class="ef-label">Para:</span><span class="ef-value" id="em1-para">amancio@icam.es</span></div>
+            <div class="email-field"><span class="ef-label">Asunto:</span><span class="ef-value" id="em1-asunto">✅ Tu sustitución en JPI nº 15 ha sido aceptada</span></div>
+          </div>
+          <div class="email-preview">
+            <div class="ep-hi" id="em1-saludo">Estimado/a Amancio Amaro Vicente,</div>
+            <p id="em1-intro">Tu solicitud de sustitución ha sido aceptada por <strong>A. Ruiz Fernández</strong> (Colegiado nº 1921).</p>
+            <div class="ep-data" id="em1-data">
+              <div><strong>Tribunal:</strong> Juzgado de 1ª Instancia nº 15</div>
+              <div><strong>Vista:</strong> mañana a las 10:30h</div>
+              <div><strong>Procedimiento:</strong> Juicio Ordinario 347/2024</div>
+              <div><strong>Parte:</strong> Demandante</div>
+              <div><strong>Importe acordado:</strong> 30 €</div>
+            </div>
+            <p>El sustituto ha recibido todos los datos del procedimiento. Recuerda realizar el pago acordado una vez celebrada la vista.</p>
+            <div class="ep-footer">ProcurApp Madrid · Red de procuradores del ICPM<br>Este es un mensaje automático, no respondas a este correo.</div>
+          </div>
+        </div>
+        <!-- EMAIL 2: SUSTITUTO -->
+        <div id="email-2" style="display:none">
+          <div class="email-card">
+            <div class="email-field"><span class="ef-label">De:</span><span class="ef-value">noreply@procurapp.es</span></div>
+            <div class="email-field"><span class="ef-label">Para:</span><span class="ef-value">aruiz@procuradores.es</span></div>
+            <div class="email-field"><span class="ef-label">Asunto:</span><span class="ef-value">📋 Datos de la sustitución que has aceptado — JPI nº 15</span></div>
+          </div>
+          <div class="email-preview">
+            <div class="ep-hi">Estimado/a A. Ruiz Fernández,</div>
+            <p>Has aceptado la sustitución solicitada por <strong>Amancio Amaro Vicente</strong> (Colegiado nº 2847). A continuación los datos completos:</p>
+            <div class="ep-data">
+              <div><strong>Tribunal:</strong> Juzgado de 1ª Instancia nº 15</div>
+              <div><strong>Sede:</strong> Plaza de Castilla, 1 · Sala 2</div>
+              <div><strong>Vista:</strong> mañana a las 10:30h</div>
+              <div><strong>Procedimiento:</strong> Juicio Ordinario 347/2024</div>
+              <div><strong>Parte representada:</strong> Demandante</div>
+              <div><strong>Cobro:</strong> 30 € por Bizum al +34 612 345 678</div>
+            </div>
+            <p>Adjunto encontrarás el <strong>Oficio de Sustitución</strong> del ICPM cumplimentado con tus datos, listo para presentar en el juzgado.</p>
+            <div class="ep-footer">ProcurApp Madrid · Red de procuradores del ICPM<br>Este es un mensaje automático, no respondas a este correo.</div>
+          </div>
+        </div>
+        <button class="btn-gold" onclick="closeEmail()">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const COLEGIADOS = {"2818":{"n":"Julio Costa Andreu","e":true},"2374":{"n":"Maria Angeles Lopez Santacruz","e":true},"1838":{"n":"Jose Luis Torrijos Leon","e":true},"2090":{"n":"Maria Josefa Hijano Arcas","e":true},"2162":{"n":"Laura Muñoz Perez","e":true},"2605":{"n":"Delia Leon Alonso","e":true},"2637":{"n":"Carolina Medel Flores","e":true},"2722":{"n":"Maria Del Carmen Nicolas Rodriguez","e":true},"2782":{"n":"Cristina Eugenia Campo Martinez","e":true},"2898":{"n":"Javier Cerrato Torrijos","e":true},"2912":{"n":"Sonia Fidalgo Alvarez","e":true},"2935":{"n":"John Zorio Carson Zorio","e":true},"30040":{"n":"Maria Belen Arce Cantano","e":true},"30042":{"n":"Isabel Narvaez Vila","e":true},"30043":{"n":"Encarnacion Llamas Villar","e":true},"30046":{"n":"Gema Garcia Merino","e":true},"30048":{"n":"Javier Gonzalez Gomez","e":true},"30049":{"n":"Ana De Simon Gutierrez","e":true},"30052":{"n":"Carlos Garcia España","e":true},"30053":{"n":"Maria Victoria Pavon Vela","e":true},"30065":{"n":"Maria Teresa Morena Morena","e":true},"30066":{"n":"Gloria Galan Fenoll","e":true},"30067":{"n":"Marta Baena Najarro","e":true},"40001":{"n":"Maria Jesus Llamas Villar","e":true},"43002":{"n":"Africa Llamas Villar","e":true},"797":{"n":"Omar Carlos Castro Muñoz","e":true},"2255":{"n":"Carlos Alfonso Castro Serrano","e":true},"308":{"n":"Maria Del Carmen Hijosa Martinez","e":true},"321":{"n":"Maria Del Carmen Gamazo Trueba","e":true},"495":{"n":"Maria Teresa Gamazo Trueba","e":true},"643":{"n":"Begoña Lopez Cerezo","e":true},"1049":{"n":"Belen Jimenez Torrecillas","e":true},"1744":{"n":"Gemma Muñoz San Jose","e":true},"2166":{"n":"Maria Jose Moruno Cuesta","e":true},"2643":{"n":"Angel Maria Morales Mengibar","e":true},"2813":{"n":"Natalia Guzman Montoya","e":true},"2826":{"n":"Maria Sanz-Pastor Moreno De Alboran","e":true},"2910":{"n":"Maria Milagros Gonzalez Chavero","e":true},"31011":{"n":"Elena Maria Muñoz Torrente","e":true},"31012":{"n":"Maria Luisa Masa Barbero","e":true},"31029":{"n":"Raul Sanchez Vicente","e":true},"31032":{"n":"Raquel Hoyos Hoyos","e":true},"31033":{"n":"Yolanda Pulgar Jimeno","e":true},"33010":{"n":"Ricardo Leon Gallardo","e":true},"1839":{"n":"Francisco Montalvo Barragan","e":true},"393":{"n":"Maria Jesus Garcia Letrado","e":true},"1298":{"n":"Eulogio Paniagua Garcia","e":true},"1780":{"n":"Noemi Jurado Lapeña","e":true},"2456":{"n":"Nuria Asanza Izquierdo","e":true},"35008":{"n":"Manuel Pastor Toril","e":true},"36019":{"n":"Leonor Maria Guillen Casado","e":true},"36032":{"n":"Carlos Alvarez Ubeda","e":true},"36036":{"n":"Yolanda Garcia Letrado","e":true},"46002":{"n":"Cristina Maria Garcia Alvarez","e":true},"46011":{"n":"Ana Maria Alvarez Ubeda","e":true},"46020":{"n":"Marta Roldan Garcia","e":true},"46022":{"n":"Maria Piña Del Castillo","e":true},"46024":{"n":"Yolanda Del Amo Martin","e":true},"2848":{"n":"Ivan Lopez Lopez","e":true},"302":{"n":"Celso De La Cruz Ortega","e":true},"812":{"n":"Alberto Alfaro Matos","e":true},"2622":{"n":"Raquel Cabrera Callero","e":true},"2310":{"n":"Lourdes Iñigo Rodriguez","e":true},"2068":{"n":"Ricardo Ureña Sanchez","e":true},"2093":{"n":"Maria Teresa Zamarra Arjonilla","e":true},"2094":{"n":"Maria Isabel Sanchez Boticario","e":true},"2113":{"n":"Maria Dolores Rojas Albaladejo","e":true},"2134":{"n":"Sergio Esteban Caballero","e":true},"2256":{"n":"Maria Inmaculada Cobacho Perez","e":true},"2372":{"n":"Julia Parra Reaño","e":true},"2608":{"n":"Javier Alcantara Tellez","e":true},"2885":{"n":"Saray Lopez Lindo","e":true},"32004":{"n":"Ana Isabel Lopez Sanchez","e":true},"32005":{"n":"Jose Ignacio Lopez Sanchez","e":true},"32008":{"n":"Montserrat Ruiz Jimenez","e":true},"32013":{"n":"Maria De Los Angeles Burgos Lopez","e":true},"32017":{"n":"Maria Dolores Garvi Perez","e":true},"780":{"n":"Jose Maria Ruiz De La Cuesta Vacas","e":true},"42031":{"n":"Maria Pardo Martinez","e":true},"2864":{"n":"Lara Virginia Alcaide Fernandez","e":true},"41004":{"n":"Beatriz Salcedo Lopez","e":true},"41006":{"n":"Carolina Lopez Rincon","e":true},"2289":{"n":"Cristina Fernandez Rodriguez","e":true},"2875":{"n":"Hugo Vega Melian","e":true},"33027":{"n":"Maria Gema Martinez Ruiz","e":true},"47001":{"n":"Jose Antonio Moreno De La Peña","e":true},"47018":{"n":"Ana Maria Valdazo Drago","e":true},"2085":{"n":"Maria Montserrat Gomez San Jose","e":true},"479":{"n":"Maria Del Angel Sanz Amaro","e":true},"670":{"n":"Maria Marta Sanz Amaro","e":true},"1282":{"n":"Raquel Olivares Pastor","e":true},"1331":{"n":"Alejandra Garcia-Valenzuela Perez","e":true},"1873":{"n":"Jorge Vazquez Rey","e":true},"2353":{"n":"Maria Angela Nadal Lopez","e":true},"2840":{"n":"Cristina Nieto Rubio","e":true},"42014":{"n":"Esther Perez-Cabezos Gallego","e":true},"2928":{"n":"Andrea Alvarez Pereda","e":true},"2021":{"n":"Samuel Martinez De Lecea Baranda","e":true},"2276":{"n":"Maria Jesus Bravo Bravo","e":true},"44000":{"n":"Mariadel Mar Perez Cortes","e":true},"44024":{"n":"Leticia Codias Viñuela","e":true},"806":{"n":"Raquel Nieto Bolaño","e":true},"662":{"n":"Beatriz De Mera Gonzalez","e":true},"2156":{"n":"Margarita Irene Cabezas Maya","e":true},"698":{"n":"Maria Jesus Sanz Peña","e":true},"1002":{"n":"Eduardo Briones Mendez","e":true},"1519":{"n":"Leonardo Ruiz Benito","e":true},"2241":{"n":"Virginia Crespo Del Barrio","e":true},"2620":{"n":"Agustin Roberto Schiavon Raineri","e":true},"38005":{"n":"Angel Garcia Aragon","e":true},"44002":{"n":"Lina Maria Esteban Sanchez","e":true},"44010":{"n":"Begoña Lluva Rivera","e":true},"44014":{"n":"Nuria Sanchez Samaniego","e":true},"44023":{"n":"Luciano Vidal Franco","e":true},"994":{"n":"Antonio Pujol Varela","e":true},"1044":{"n":"Ana Maria Ariza Colmenarejo","e":true},"1479":{"n":"Maria Isabel Garcia Espinar","e":true},"2031":{"n":"Adelaida Isabel Arranz Bou","e":true},"2271":{"n":"Maria Antonia Ariza Colmenarejo","e":true},"2909":{"n":"Elena Pascual Perez","e":true},"2920":{"n":"Alfonso Mansilla Moran","e":true},"33008":{"n":"Jaime Hernandez Urizar","e":true},"33013":{"n":"Braulio Matellano Martin","e":true},"33014":{"n":"Maria Del Mar Pinto Ruiz","e":true},"1202":{"n":"Maria Del Carmen De La Fuente Baonza","e":true},"2820":{"n":"Natalia Valeria Fernandez Pastor","e":true},"2879":{"n":"Luis Lopez Elvira","e":true},"436":{"n":"Ana Maria Garcia Fernandez","e":true},"1714":{"n":"Marta Sanagujas Guisado","e":true},"2458":{"n":"Maria Carmen Ramos Aladueña","e":true},"2785":{"n":"Patricia Fraile Diaz-Calderay","e":true},"2853":{"n":"Cristina Zavala De Paz","e":true},"43005":{"n":"Armando Muñoz Miguel","e":true},"38030":{"n":"Lucrecia Rubio Sevillano","e":true},"2055":{"n":"Yolanda Gonzalez Barquilla","e":true},"2421":{"n":"Jose Manuel Martin Vazquez","e":true},"2435":{"n":"Pedro Emilio Serradilla Serrano","e":true},"2478":{"n":"Regina Suarez Bravo","e":true},"2597":{"n":"Javier Carreras Ruiz","e":true},"2727":{"n":"Joaquin Paz Caravaca","e":true},"47003":{"n":"Angel Moreno Morales","e":true},"47007":{"n":"Jose Manuel Alvarez Santos","e":true},"47012":{"n":"Jose Antonio Fente Delgado","e":true},"47017":{"n":"Jose Miguel Abad Cuenca","e":true},"47019":{"n":"Maria Del Rosario Garcia Garcia","e":true},"2862":{"n":"Maria Jose Gutierrez Fuente","e":true},"44017":{"n":"Amalia Aznar Santos","e":true},"336":{"n":"Pilar Rodriguez De La Fuente","e":true},"1177":{"n":"Francisco Miguel Redondo Ortiz","e":true},"1313":{"n":"Carmen Medina Medina","e":true},"1774":{"n":"Maria Bellon Marin","e":true},"2003":{"n":"Paula Maria Redondo Ortiz","e":true},"2006":{"n":"Silvia Perez Macarrilla","e":true},"2122":{"n":"Maria Ines Perez Canales","e":true},"2201":{"n":"Juan Antonio Barranco Fernandez","e":true},"2436":{"n":"Elena Gil Mandaloniz","e":true},"2775":{"n":"Jaime Gonzalez Garcia","e":true},"2934":{"n":"Javier Talavera Muñoz","e":true},"34002":{"n":"Jose Miguel Bobillo Garvia","e":true},"34007":{"n":"Purificacion Rodriguez Arroyo","e":true},"34012":{"n":"Gloria Rubio Sanz","e":true},"34014":{"n":"Ines Maria Alvarez Godoy","e":true},"34017":{"n":"Susana Maria Garcia Garcia","e":true},"34019":{"n":"Alfonso Solbes Montero De Espinosa","e":true},"34025":{"n":"Maria De Los Angeles Lucendo Gonzalez","e":true},"35032":{"n":"Rosa Maria Muñoz Torres","e":true},"47010":{"n":"Maria Elena Simarro Valverde","e":true},"42044":{"n":"Maria Teresa Quesada Martinez","e":true},"44001":{"n":"Pedro Javier Galan Garate","e":true},"1541":{"n":"Gema Fernandez-Blanco San Miguel","e":true},"374":{"n":"Maria Teresa Perez De Acosta","e":true},"2067":{"n":"Fatima Beatriz Dema Jimenez","e":true},"450":{"n":"Maria Luisa Lopez-Puigcerver Portillo","e":true},"468":{"n":"Ignacio Cuadrado Ruescas","e":true},"587":{"n":"Patricia Leon Grande","e":true},"876":{"n":"Francisco Fernandez Rosa","e":true},"917":{"n":"Monica Ana Liceras Vallina","e":true},"1080":{"n":"Maria Jose Carnero Lopez","e":true},"1128":{"n":"Javier Campal Crespo","e":true},"1222":{"n":"Rocio Martin Echague","e":true},"1259":{"n":"Angela Cristina Santos Erroz","e":true},"1382":{"n":"Felix Guadalupe Martin","e":true},"1416":{"n":"Gonzalo Santos De Dios","e":true},"1715":{"n":"Jose Carlos Garcia Rodriguez","e":true},"1783":{"n":"Manuel Maria Garcia Ortiz De Urbina","e":true},"2169":{"n":"Susana Muñiz Castro","e":true},"2240":{"n":"Raquel Maria Garcia Olmedo","e":true},"2274":{"n":"Mario Lazaro Vega","e":true},"2292":{"n":"Guillermo Lobo Trompeta","e":true},"2514":{"n":"Jaime San Frutos Martin","e":true},"2713":{"n":"Victoria Carlota Terceño Jimenez","e":true},"2766":{"n":"Laura Escudero Ortiz","e":true},"2882":{"n":"Jesus Rodriguez Muñoz-Quiros","e":true},"2915":{"n":"Maria Jose Ruiz Peña","e":true},"38015":{"n":"Esteban Muñoz Nieto","e":true},"42034":{"n":"Elena Garcia Pomar","e":true},"42048":{"n":"Marta Sillero Garcia","e":true},"42054":{"n":"Iciar Bacigalupe Idiondo","e":true},"42033":{"n":"Cristina Garcia Rodriguez","e":true},"248":{"n":"Rodolfo Gonzalez Garcia","e":true},"905":{"n":"Javier Del Campo Moreno","e":true},"2859":{"n":"Javier Beltran Zarzuela","e":true},"42046":{"n":"Maria Sonsoles Diaz-Varela Arrese","e":true},"2015":{"n":"Ana Vazquez Pastor","e":true},"2142":{"n":"Maria Pilar Benito Cabezuelo","e":true},"2223":{"n":"Sandra Ana Hernandez","e":true},"2287":{"n":"Esther Lopez Alonso","e":true},"2742":{"n":"Laura Desiree Diaz Alba","e":true},"2750":{"n":"Maria Jose Robledo Rivera","e":true},"35002":{"n":"Manuel Diaz Alfonso","e":true},"35012":{"n":"Silvia Maria Garcia Montero","e":true},"35014":{"n":"Jose Antonio Pintado Torres","e":true},"35016":{"n":"Maria Rosa Gutierrez Ramirez","e":true},"35022":{"n":"Maria Cristina Benito Cabezuelo","e":true},"35026":{"n":"Mariano Callejo Caballero","e":true},"35029":{"n":"Carlos Martin Martin","e":true},"35030":{"n":"Luis Ignacio Ibañez Ron","e":true},"2667":{"n":"Juan Manuel Cortina Fitera","e":true},"115":{"n":"Argimiro Vazquez Guillen","e":true},"125":{"n":"Juan Carlos Estevez Fernandez-Novoa","e":true},"137":{"n":"Fernando Gala Escribano","e":true},"138":{"n":"Javier Dominguez Lopez","e":true},"144":{"n":"Consuelo Rodriguez Chacon","e":true},"156":{"n":"Jose Manuel Villasante Garcia","e":true},"158":{"n":"Maria Del Carmen Otero Garcia","e":true},"172":{"n":"Javier Ungria Lopez","e":true},"181":{"n":"Maria Esperanza Azpeitia Calvin","e":true},"183":{"n":"Begoña Fernandez Perez-Zabalgoitia","e":true},"198":{"n":"Federico Gordo Romero","e":true},"200":{"n":"Ignacio Aguilar Fernandez","e":true},"204":{"n":"Pilar Marta Bermejillo De Hevia","e":true},"205":{"n":"Matilde Marin Perez","e":true},"207":{"n":"Manuel Infante Sanchez","e":true},"216":{"n":"Alejandro Gonzalez Salinas","e":true},"222":{"n":"Jose Ramon Rego Rodriguez","e":true},"224":{"n":"Antonio Miguel Angel Araque Almendros","e":true},"226":{"n":"Jorge Deleito Garcia","e":true},"228":{"n":"Jose Manuel Fernandez Castro","e":true},"229":{"n":"Maria Teresa Uceda Blasco","e":true},"236":{"n":"Juan Jose Gomez Velasco","e":true},"239":{"n":"Alicia Casado Deleito","e":true},"244":{"n":"Maria Lourdes Fernandez-Luna Tamayo","e":true},"245":{"n":"Pedro Antonio Gonzalez Sanchez","e":true},"246":{"n":"Pablo Oterino Menendez","e":true},"247":{"n":"Angustias Del Barrio Leon","e":true},"251":{"n":"Everilda Camargo Sanchez","e":true},"253":{"n":"Maria Dolores Ortega Agudelo","e":true},"255":{"n":"Maria Dolores Moreno Gomez","e":true},"257":{"n":"Domingo Lago Pato","e":true},"259":{"n":"Antonio Maria Alvarez-Buylla Ballesteros","e":true},"261":{"n":"Antonio Ramon Rueda Lopez","e":true},"265":{"n":"Jose Luis Martin Jaureguibeitia","e":true},"274":{"n":"Manuel Ortiz De Urbina Ruiz","e":true},"277":{"n":"Carlos Navarro Gutierrez","e":true},"284":{"n":"Maria Luisa Delgado-Iribarren Pastor","e":true},"289":{"n":"Francisco Garcia Crespo","e":true},"291":{"n":"Fernando Julio Herrera Gonzalez","e":true},"293":{"n":"Julian Caballero Aguado","e":true},"294":{"n":"Isabel Soberon Garcia De Enterria","e":true},"297":{"n":"Nuria Munar Serrano","e":true},"299":{"n":"Maria De La Paloma Ortiz-Cañavate Levenfeld","e":true},"307":{"n":"Maria Luisa Montero Correal","e":true},"310":{"n":"Juan Luis Navas Garcia","e":true},"311":{"n":"Olga Gutierrez Alvarez","e":true},"312":{"n":"Paz Santamaria Zapata","e":true},"313":{"n":"Maria Luisa Noya Otero","e":true},"314":{"n":"Maria De La Paloma Villamana Herrera","e":true},"318":{"n":"Maria Dolores De La Plata Corbacho","e":true},"320":{"n":"Magdalena Ruiz De Luna Gonzalez","e":true},"322":{"n":"Maria Aurora Gomez-Villaboa Mandri","e":true},"324":{"n":"Maria Teresa Rodriguez Pechin","e":true},"326":{"n":"Sara Natalia Gutierrez Lorenzo","e":true},"328":{"n":"Maria Del Pilar Rico Cadenas","e":true},"332":{"n":"Miguel Angel Heredero Suero","e":true},"335":{"n":"Blanca Maria Grande Pesquero","e":true},"337":{"n":"Olga Rodriguez Herranz","e":true},"339":{"n":"Maria Mercedes Blanco Fernandez","e":true},"343":{"n":"Isabel Cañedo Vega","e":true},"344":{"n":"Blanca Berriatua Horta","e":true},"345":{"n":"Mercedes Marin Iribarren","e":true},"355":{"n":"Mercedes Portillo Rubi","e":true},"356":{"n":"Laura Lozano Montalvo","e":true},"358":{"n":"Angel Luis Mesas Peiro","e":true},"364":{"n":"Rafael Gamarra Megias","e":true},"365":{"n":"Manuel Sanchez-Puelles Gonzalez-Carvajal","e":true},"366":{"n":"Maria Del Carmen Ortiz Cornago","e":true},"371":{"n":"Jose Carlos Caballero Ballesteros","e":true},"381":{"n":"Francisco Javier Rodriguez Tadey","e":true},"383":{"n":"Maria Jose Rodriguez Teijeiro","e":true},"387":{"n":"Maria De La Soledad Urzaiz Moreno","e":true},"391":{"n":"Eduardo Codes Feijoo","e":true},"394":{"n":"Maria Soledad Muelas Garcia","e":true},"395":{"n":"Yolanda Luna Sierra","e":true},"403":{"n":"Antonio Palma Villalon","e":true},"408":{"n":"Maria Concepcion Del Rey Estevez","e":true},"414":{"n":"Enrique De Antonio Viscor","e":true},"416":{"n":"Antonio Garcia Martinez","e":true},"417":{"n":"Ana Prieto Lara-Barahona","e":true},"419":{"n":"Maria Del Carmen Moreno Ramos","e":true},"420":{"n":"Maria Isabel Torres Coello","e":true},"427":{"n":"Gabriel Maria De Diego Quevedo","e":true},"442":{"n":"Valentina Lopez Valero","e":true},"445":{"n":"Ramon Rodriguez Nogueira","e":true},"447":{"n":"Sofia Pereda Gil","e":true},"449":{"n":"Cruz Maria Sobrino Garcia","e":true},"452":{"n":"Enriqueta Salman-Alonso Khouri","e":true},"453":{"n":"Cayetana De Zulueta Luchsinger","e":true},"463":{"n":"Victorio Venturini Medina","e":true},"464":{"n":"Maria Del Pilar Lopez Revilla","e":true},"472":{"n":"Maria Carmen Iglesias Saavedra","e":true},"474":{"n":"Isabel Maria De La Misericordia Garcia","e":true},"476":{"n":"German Marina Grimau","e":true},"478":{"n":"Maria Del Carmen Madrid Sanz","e":true},"480":{"n":"Javier Iglesias Gomez","e":true},"481":{"n":"Juan Torrecilla Jimenez","e":true},"485":{"n":"Maria Isabel Ramos Cervantes","e":true},"486":{"n":"Maria Sonia Jimenez Sanmillan","e":true},"487":{"n":"Angel Rojas Santos","e":true},"488":{"n":"Katiuska Marin Martin","e":true},"489":{"n":"Maria Rosa Garcia Gonzalez","e":true},"491":{"n":"Santiago Tesorero Diaz","e":true},"492":{"n":"Maria De Los Angeles Barrios Izquierdo","e":true},"498":{"n":"Maximo Lucena Fernandez-Reinoso","e":true},"502":{"n":"Maria Leocadia Garcia Cornejo","e":true},"506":{"n":"Jorge Laguna Alonso","e":true},"510":{"n":"Adela Gilsanz Madroño","e":true},"516":{"n":"Maria Teresa Goñi Toledo","e":true},"519":{"n":"Maria Del Rocio Sampere Meneses","e":true},"520":{"n":"Angela Maria Rodriguez Martinez-Conde","e":true},"521":{"n":"Raul Martinez Ostenero","e":true},"523":{"n":"Miguel Zamora Bausa","e":true},"524":{"n":"Raquel Rujas Martin","e":true},"525":{"n":"Lucia Gloria Sanchez Nieto","e":true},"526":{"n":"Carlos Jimenez Padron","e":true},"531":{"n":"Francisco Javier Cereceda Fernandez-Oruña","e":true},"532":{"n":"Maria Del Rosario Garcia Gomez","e":true},"534":{"n":"Miguel Angel Ayuso Morales","e":true},"535":{"n":"Jaime Briones Mendez","e":true},"539":{"n":"Maria De Los Angeles Sanchez Fernandez","e":true},"540":{"n":"Rosalia Rosique Samper","e":true},"541":{"n":"Esteban Jabardo Margareto","e":true},"542":{"n":"Manuel De Benito Oteo","e":true},"543":{"n":"Federico Pinilla Romeo","e":true},"544":{"n":"Concepcion Montero Rubiato","e":true},"545":{"n":"Etelvina Martin Rodriguez","e":true},"547":{"n":"Vicente Ruigomez Muriedas","e":true},"548":{"n":"Araceli Morales Merino","e":true},"551":{"n":"Maria Jose Corral Losada","e":true},"552":{"n":"Maria Jose Arranz De Diego","e":true},"554":{"n":"Fernando Ruiz De Velasco Martinez De Ercilla","e":true},"555":{"n":"Guillermo Garcia San Miguel Hoover","e":true},"556":{"n":"Pablo Hornedo Muguiro","e":true},"558":{"n":"Maria Del Carmen Gomez Garces","e":true},"562":{"n":"Maria Belen San Roman Lopez","e":true},"563":{"n":"Adela Cano Lantero","e":true},"570":{"n":"Ana Julia Vaquero Blanco","e":true},"572":{"n":"Javier Lorente Zurdo","e":true},"574":{"n":"Eusebio Ruiz Esteban","e":true},"576":{"n":"Jose Luis Barragues Fernandez","e":true},"578":{"n":"Roberto Primitivo Granizo Palomeque","e":true},"579":{"n":"Miguel Angel Aparicio Urcia","e":true},"581":{"n":"Jose Perez Fernandez-Turegano","e":true},"582":{"n":"Antonio Sorribes Calle","e":true},"584":{"n":"Arturo Molina Santiago","e":true},"586":{"n":"Maria Asuncion Miquel Aguado","e":true},"588":{"n":"Carlos Piñeira De Campos","e":true},"590":{"n":"Purificacion Bayo Herranz","e":true},"591":{"n":"Amalia Ruiz Garcia","e":true},"593":{"n":"Beatriz Sanchez-Vera Gomez-Trelles","e":true},"597":{"n":"Fernando Maria Garcia Sevilla","e":true},"601":{"n":"Evencio Conde De Gregorio","e":true},"602":{"n":"Milagros Pastor Fernandez","e":true},"605":{"n":"Victoria Brualla Gomez De La Torre","e":true},"610":{"n":"Jose Maria Murua Fernandez","e":true},"611":{"n":"Ana Maria Alarcon Martinez","e":true},"612":{"n":"Alejandro Utrilla Palombi","e":true},"613":{"n":"Elena Paula Yustos Capilla","e":true},"614":{"n":"Maria Fuencisla Martinez Minguez","e":true},"615":{"n":"Victoria Perez-Mulet Diez-Picazo","e":true},"617":{"n":"Rosa Sorribes Calle","e":true},"620":{"n":"Carmen Armesto Tinoco","e":true},"622":{"n":"Maria Jesus Fernandez Salagre","e":true},"625":{"n":"Agustin Sanz Arroyo","e":true},"627":{"n":"Myriam Alvarez Del Valle Lavesque","e":true},"629":{"n":"Carmen Escorial Pinela","e":true},"633":{"n":"Ignacio Argos Linares","e":true},"635":{"n":"Maria Teresa Vidal Bodi","e":true},"639":{"n":"Maria Teresa Guijarro De Abia","e":true},"640":{"n":"Maria Eugenia De Francisco Ferreras","e":true},"641":{"n":"Paloma Rubio Cuesta","e":true},"642":{"n":"Montserrat Gomez Hernandez","e":true},"647":{"n":"Norberto Pablo Jerez Fernandez","e":true},"648":{"n":"Juan Manuel Caloto Carpintero","e":true},"649":{"n":"Maria Lourdes Amasio Diaz","e":true},"652":{"n":"Alvaro Garcia San Miguel Hoover","e":true},"654":{"n":"Ignacio Rodriguez Diez","e":true},"656":{"n":"Maria Dolores Maroto Gomez","e":true},"657":{"n":"Marta Oti Moreno","e":true},"666":{"n":"Jose Ramon Cervigon Ruckauer","e":true},"671":{"n":"Luis Pidal Allendesalazar","e":true},"672":{"n":"Marta Isla Gomez","e":true},"673":{"n":"Elena Puig Turegano","e":true},"674":{"n":"Alicia Oliva Collar","e":true},"677":{"n":"Maria Granizo Palomeque","e":true},"678":{"n":"Mª Izaskun Lacosta Guindano","e":true},"679":{"n":"Pablo Sorribes Calle","e":true},"681":{"n":"Silvia Albite Espinosa","e":true},"684":{"n":"Marta Lopez Barreda","e":true},"694":{"n":"Francisco De Paula Martin Fernandez","e":true},"700":{"n":"Maria Iciar De La Peña Argacha","e":true},"702":{"n":"Maria Susana Sanchez Garcia","e":true},"705":{"n":"Maria Concepcion Lopez Garcia","e":true},"710":{"n":"Ana Castillo Diaz","e":true},"712":{"n":"Jacobo Gandarillas Martos","e":true},"714":{"n":"Luis Jose Garcia Barrenechea","e":true},"717":{"n":"Helena Fernandez Castan","e":true},"718":{"n":"Maria Jesus Mateo Herranz","e":true},"719":{"n":"Maria Mercedes Ruiz-Gopegui Gonzalez","e":true},"720":{"n":"Maria Isabel Salamanca Alvaro","e":true},"721":{"n":"Susana Garcia Abascal","e":true},"723":{"n":"Virginia Gutierrez Sanz","e":true},"725":{"n":"Juan Antonio Fernandez Mugica","e":true},"726":{"n":"Jorge Perez Vivas","e":true},"727":{"n":"Ana Llorens Pardo","e":true},"730":{"n":"Maria Jose Barabino Ballesteros","e":true},"731":{"n":"Maria Del Carmen Palomares Quesada","e":true},"733":{"n":"Domingo Jose Collado Molinero","e":true},"734":{"n":"Cristina Velasco Echavarri","e":true},"737":{"n":"Maria Dolores De La Rubia Ruiz","e":true},"741":{"n":"Monica Oca De Zayas","e":true},"743":{"n":"Maria Jose Polo Garcia","e":true},"745":{"n":"Rosa Maria Martinez Virgili","e":true},"746":{"n":"Susana Linares Gutierrez","e":true},"747":{"n":"Ana Lazaro Gogorza","e":true},"749":{"n":"Maria Del Carmen Gimenez Cardona","e":true},"751":{"n":"Isabel Afonso Rodriguez","e":true},"755":{"n":"Isabel Covadonga Julia Corujo","e":true},"758":{"n":"Inmaculada Concepcion Gail Lopez","e":true},"759":{"n":"Lourdes Bravo Toledo","e":true},"761":{"n":"Maria Elena Martin Garcia","e":true},"763":{"n":"Veronica Garcia Simal","e":true},"768":{"n":"Carmen Garcia Rubio","e":true},"770":{"n":"Maria Dolores Arcos Gomez","e":true},"771":{"n":"Begoña Del Arco Herrero","e":true},"772":{"n":"Pilar Gema Pinto Campos","e":true},"774":{"n":"Maria Belen Aroca Florez","e":true},"775":{"n":"Maria Del Carmen Olmos Gilsanz","e":true},"776":{"n":"Ignacio Martinez Zapatero","e":true},"777":{"n":"Cristina Jimenez De La Plata Garcia De Blas","e":true},"778":{"n":"Alvaro Romay Perez","e":true},"781":{"n":"Elena Muñoz Gonzalez","e":true},"782":{"n":"Maria Natalia Martin De Vidales Llorente","e":true},"785":{"n":"Jose Javier Freixa Iruela","e":true},"786":{"n":"Marta Ortega Cortina","e":true},"788":{"n":"Maria Guadalupe Moriana Sevillano","e":true},"789":{"n":"Maria Angeles Almansa Sanz","e":true},"791":{"n":"Beatriz Prieto Cuevas","e":true},"793":{"n":"Maria Esperanza Alvaro Mateo","e":true},"795":{"n":"Ana Isabel Arranz Grande","e":true},"800":{"n":"Marta Saint-Aubin Alonso","e":true},"801":{"n":"Angel Martin Gutierrez","e":true},"811":{"n":"Maria Del Valle Gili Ruiz","e":true},"813":{"n":"Maria Teresa Marcos Moreno","e":true},"815":{"n":"Maria Lourdes Cano Ochoa","e":true},"816":{"n":"Estrella Moyano Cabrera","e":true},"817":{"n":"Jose Joaquin Nuñez Armendariz","e":true},"818":{"n":"Helena Romano Vera","e":true},"819":{"n":"Maria Concepcion Gimenez Gomez","e":true},"820":{"n":"Maria Del Carmen Cabezas Maya","e":true},"821":{"n":"Jose Manuel Merino Bravo","e":true},"825":{"n":"Maria Yolanda Ortiz Alfonso","e":true},"827":{"n":"Fernando Perez Cruz","e":true},"830":{"n":"Maria Concepcion Tejada Marcelino","e":true},"833":{"n":"Margarita Lucia Contreras Herradon","e":true},"836":{"n":"Ana Diaz De La Peña Lopez","e":true},"837":{"n":"Maria Del Rosario Gomez Lora","e":true},"839":{"n":"Gerardo Tejedor Vilar","e":true},"842":{"n":"Dolores Tejero Garcia-Tejero","e":true},"845":{"n":"Sandra Osorio Alonso","e":true},"846":{"n":"Maria Luisa Gonzalez Garcia","e":true},"847":{"n":"Cristina Alvarez Perez","e":true},"850":{"n":"Maria Luisa Mora Villarrubia","e":true},"851":{"n":"Maria Luisa Carretero Herranz","e":true},"856":{"n":"Blanca Murillo De La Cuadra","e":true},"858":{"n":"Celia Fernandez Redondo","e":true},"861":{"n":"Ana Maria Espinosa Troyano","e":true},"864":{"n":"Roberto De Hoyos Mencia","e":true},"867":{"n":"Paloma Rubio Pelaez","e":true},"870":{"n":"Elisa Maria Bustamante Garcia","e":true},"871":{"n":"Maria Cruz Reig Gaston","e":true},"872":{"n":"Paloma Rabadan Chaves","e":true},"874":{"n":"Araceli De La Torre Jusdado","e":true},"875":{"n":"Francisco Inocencio Fernandez Martinez","e":true},"880":{"n":"Amalia Josefa Delgado Cid","e":true},"881":{"n":"Jose Angel Donaire Gomez","e":true},"882":{"n":"Maria Mercedes Espallargas Carbo","e":true},"883":{"n":"Laura Bande Gonzalez","e":true},"884":{"n":"Ana Alberdi Berriatua","e":true},"889":{"n":"Cristina Palma Martinez","e":true},"893":{"n":"Susana Clemente Marmol","e":true},"894":{"n":"Maria Angustias Garnica Montoro","e":true},"896":{"n":"Silvia Maria Casielles Moran","e":true},"897":{"n":"Manuel Marquez De Prado Navas","e":true},"898":{"n":"Maria Del Pilar Rami Soriano","e":true},"907":{"n":"Maria Rita Sanchez Diaz","e":true},"909":{"n":"Yolanda Jimenez Alonso","e":true},"911":{"n":"Alvaro Francisco Arana Moro","e":true},"915":{"n":"Concepcion Muñiz Gonzalez","e":true},"919":{"n":"Maria De La Paloma Guerrero-Laverat Martinez","e":true},"920":{"n":"Antonio Esteban Sanchez","e":true},"927":{"n":"Elena Beatriz Lopez Macias","e":true},"928":{"n":"Maria Soledad Castañeda Gonzalez","e":true},"929":{"n":"Maria Teresa Aranda Vides","e":true},"935":{"n":"Esperanza Aparicio Florez","e":true},"938":{"n":"Rosario Guijarro De Abia","e":true},"939":{"n":"Mercedes Albi Murcia","e":true},"940":{"n":"Irene Aranda Varela","e":true},"944":{"n":"Maria Teresa Fernandez Tejedor","e":true},"945":{"n":"Eduardo Moya Gomez","e":true},"947":{"n":"Fernando Garcia De La Cruz Romeral","e":true},"950":{"n":"Pedro Moreno Rodriguez","e":true},"953":{"n":"Jose Lledo Moreno","e":true},"955":{"n":"Sonia De La Serna Blazquez","e":true},"956":{"n":"Marco Aurelio Labajo Gonzalez","e":true},"959":{"n":"Guillermo Orbegozo Arechavala","e":true},"960":{"n":"Maria Angeles Galdiz De La Plaza","e":true},"961":{"n":"Elena Galan Padilla","e":true},"962":{"n":"Carlos Alberto De Grado Viejo","e":true},"963":{"n":"Monica De La Paloma Fente Delgado","e":true},"965":{"n":"Carmen Fernandez Perosanz","e":true},"966":{"n":"Olga Martin Marquez","e":true},"967":{"n":"Maria Eulalia Sanz Campillejo","e":true},"968":{"n":"Maria Alicia Hernandez Villa","e":true},"969":{"n":"Maria Del Rosario Martin-Borja Rodriguez","e":true},"970":{"n":"Maria Isabel Torres Ruiz","e":true},"974":{"n":"Pilar Cendrero Mijarra","e":true},"976":{"n":"Maria Mercedes Perez Garcia","e":true},"978":{"n":"Jose Luis Garcia Guardia","e":true},"979":{"n":"Beatriz Calvillo Rodriguez","e":true},"980":{"n":"Jose Antonio Perez Casado","e":true},"981":{"n":"Eloisa Prieto Palomeque","e":true},"983":{"n":"Gema Carmen De Luis Sanchez","e":true},"987":{"n":"Maria Macarena Rodriguez Ruiz","e":true},"990":{"n":"Maria Cruz Ortiz Gutierrez","e":true},"991":{"n":"Isidro Orquin Cedenilla","e":true},"992":{"n":"Gemma Gomez Cordoba","e":true},"993":{"n":"Enrique Alvarez Vicario","e":true},"1003":{"n":"Gracia Lopez Fernandez","e":true},"1004":{"n":"Maria Del Mar Martinez Bueno","e":true},"1006":{"n":"Paloma Thomas De Carranza Mendez De Vigo","e":true},"1009":{"n":"Maria Del Mar Hornero Hernandez","e":true},"1011":{"n":"Carlos Plasencia Baltes","e":true},"1013":{"n":"Maria Jesus Pintado De Oyague","e":true},"1015":{"n":"Amparo Ivana Rouanet Mota","e":true},"1016":{"n":"Ana Maria Martin Espinosa","e":true},"1017":{"n":"Pilar Perez Gonzalez","e":true},"1018":{"n":"Rocio Arduan Rodriguez","e":true},"1019":{"n":"Esteban Carlos Martinez Espinar","e":true},"1022":{"n":"Javier Huidobro Sanchez-Toscano","e":true},"1023":{"n":"Victor Enrique Mardomingo Herrero","e":true},"1024":{"n":"Paloma Solera Lama","e":true},"1027":{"n":"Antonio Albaladejo Martinez","e":true},"1029":{"n":"Aranzazu Fernandez Perez","e":true},"1030":{"n":"Lucia Manchon Sanchez-Escribano","e":true},"1031":{"n":"Monica Lumbreras Manzano","e":true},"1032":{"n":"Luis De Arguelles Gonzalez","e":true},"1034":{"n":"Luis Delgado De Tena","e":true},"1035":{"n":"Pablo Ron Martin","e":true},"1040":{"n":"Virginia Aragon Segura","e":true},"1046":{"n":"Maria Del Carmen Azpeitia Bello","e":true},"1047":{"n":"Maria Elvira Encinas Lorente","e":true},"1052":{"n":"Fernando Rodriguez-Jurado Saro","e":true},"1053":{"n":"Marina De La Villa Cantos","e":true},"1054":{"n":"Ignacio Batllo Ripoll","e":true},"1055":{"n":"Maria Concepcion Delgado Azqueta","e":true},"1062":{"n":"Maria Pilar Plaza Frias","e":true},"1069":{"n":"Blanca Rueda Quintero","e":true},"1070":{"n":"Maria Dolores Moral Garcia","e":true},"1071":{"n":"Joaquin Fanjul De Antonio","e":true},"1072":{"n":"Maria Luisa Estrugo Lozano","e":true},"1074":{"n":"Manuel Joaquin Bermejo Gonzalez","e":true},"1078":{"n":"Jose Antonio Del Campo Barcon","e":true},"1081":{"n":"Jose Miguel Martinez-Fresneda Gambra","e":true},"1082":{"n":"Carlos Gomez-Villaboa Mandri","e":true},"1083":{"n":"Maria Concepcion Puyol Montero","e":true},"1089":{"n":"Javier Alvarez Diez","e":true},"1090":{"n":"Matilde Sanz Estrada","e":true},"1091":{"n":"Maria Dolores De Haro Martinez","e":true},"1093":{"n":"Ernesto Garcia-Lozano Martin","e":true},"1094":{"n":"Alfonso De Murga Florido","e":true},"1098":{"n":"Ana Maria Aparicio Carol","e":true},"1099":{"n":"Maria Del Carmen Montes Baladron","e":true},"1104":{"n":"Maria Irene Arnes Bueno","e":true},"1105":{"n":"Maria Jesus Rivero Raton","e":true},"1108":{"n":"Ignacio Melchor Oruña","e":true},"1109":{"n":"Maria De La Luz Simarro Valverde","e":true},"1110":{"n":"Sara Diaz Pardeiro","e":true},"1111":{"n":"Manuel Martinez De Lejarza Ureña","e":true},"1115":{"n":"Pablo Jose Trujillo Castellano","e":true},"1118":{"n":"Ramiro Reynolds Martinez","e":true},"1121":{"n":"Maria Del Pilar Moyano Nuñez","e":true},"1123":{"n":"Luis Ortiz Herraiz","e":true},"1124":{"n":"Emilio Martinez Benitez","e":true},"1125":{"n":"Juan Antonio Velo Santamaria","e":true},"1127":{"n":"Maria Amaya Castillo Gallo","e":true},"1130":{"n":"Maria Eugenia Carmona Alonso","e":true},"1131":{"n":"Jose Antonio Beneit Martinez","e":true},"1132":{"n":"Paloma Izquierdo Labrada","e":true},"1135":{"n":"Cristina Gramage Lopez","e":true},"1137":{"n":"Ricardo Ludovico Moreno Martin","e":true},"1140":{"n":"Maria Mercedes Martinez Del Campo","e":true},"1143":{"n":"Virginia Salto Maquedano","e":true},"1144":{"n":"Juan Antonio Escriva De Romani Vereterra","e":true},"1145":{"n":"Miguel Angel Capetillo Vega","e":true},"1148":{"n":"Silvia Batanero Vazquez","e":true},"1154":{"n":"Maria Teresa Campos Montellano","e":true},"1155":{"n":"Maria Albarracin Pascual","e":true},"1156":{"n":"Miguel Angel Castillo Sanchez","e":true},"1157":{"n":"Silvia Barreiro Teijeiro","e":true},"1160":{"n":"Maria Teresa Moncayola Martin","e":true},"1165":{"n":"Nuria Ramirez Navarro","e":true},"1167":{"n":"Maria Jesus Ruiz Esteban","e":true},"1169":{"n":"Julio Alberto Rodriguez Orozco","e":true},"1174":{"n":"Cristina Herguedas Pastor","e":true},"1180":{"n":"Maria Del Pilar Vived De La Vega","e":true},"1182":{"n":"Maria Dolores Hernandez Vergara","e":true},"1185":{"n":"Begoña Fernandez Jimenez","e":true},"1189":{"n":"Alberto Fernandez Rodriguez","e":true},"1191":{"n":"Gonzalo Ruiz De Velasco Martinez De Ercilla","e":true},"1192":{"n":"Lucia Carazo Gallo","e":true},"1193":{"n":"Fernando Anaya Garcia","e":true},"1194":{"n":"Enrique Jose Thomas De Carranza Mendez De Vigo","e":true},"1195":{"n":"Javier Del Amo Artes","e":true},"1198":{"n":"Virginia Sanchez De Leon Herencia","e":true},"1200":{"n":"Raquel Sanchez-Marin Garcia","e":true},"1201":{"n":"Susana Hernandez Del Muro","e":true},"1204":{"n":"Alejandro Escudero Delgado","e":true},"1207":{"n":"Maria Angeles Martin Martin","e":true},"1208":{"n":"Maria Isabel Herrada Martin","e":true},"1213":{"n":"Daniel Bufala Balmaseda","e":true},"1216":{"n":"Lucia Vazquez-Pimentel Sanchez","e":true},"1219":{"n":"Blanca Ruiz Minguito","e":true},"1220":{"n":"Beatriz Sordo Gutierrez","e":true},"1221":{"n":"Maria De Los Angeles Gonzalez Rivero","e":true},"1223":{"n":"Olga Romojaro Casado","e":true},"1224":{"n":"Virginia Camacho Villar","e":true},"1225":{"n":"Gloria Ines Leal Mora","e":true},"1227":{"n":"Maria Josefa Santos Martin","e":true},"1230":{"n":"Abelardo Miguel Rodriguez Gonzalez","e":true},"1233":{"n":"Silvia Virto Bermejo","e":true},"1235":{"n":"Federico Ortiz-Cañavate Levenfeld","e":true},"1236":{"n":"Jose Andres Cayuela Castillejo","e":true},"1239":{"n":"Maria Eugenia Pato Sanz","e":true},"1240":{"n":"Maria Silvia Hernandez-Gil Gomez","e":true},"1241":{"n":"Ana Dolores Leal Labrador","e":true},"1243":{"n":"Maria Del Carmen Hondarza Ugedo","e":true},"1244":{"n":"Maria Belen Martinez Virgili","e":true},"1247":{"n":"Jose Luis Pinto-Marabotto Ruiz","e":true},"1248":{"n":"Almudena Galan Gonzalez","e":true},"1249":{"n":"Carlos Delabat Fernandez","e":true},"1251":{"n":"Maria Jesus Bejarano Sanchez","e":true},"1252":{"n":"Silvino Gonzalez Moreno","e":true},"1255":{"n":"Maria Cristina Mendez Rocasolano","e":true},"1256":{"n":"Virginia Rosa Lobo Ruiz","e":true},"1257":{"n":"Alvaro Jose De Luis Otero","e":true},"1258":{"n":"Isabel Alicia Mota Torres","e":true},"1261":{"n":"Susana Tellez Andrea","e":true},"1262":{"n":"Jaime Gafas Pacheco","e":true},"1263":{"n":"Maria Del Mar De Villa Molina","e":true},"1265":{"n":"Ana De La Corte Macias","e":true},"1268":{"n":"Rocio Marsal Alonso","e":true},"1271":{"n":"Maria Isabel Roda Martin","e":true},"1273":{"n":"Javier Zabala Falco","e":true},"1274":{"n":"Jose Bernardo Cobo Martinez De Murguia","e":true},"1277":{"n":"Justo Guedeja-Marron De Onis","e":true},"1278":{"n":"Maria Paloma Martin Martin","e":true},"1279":{"n":"Rafael Nuñez Pagan","e":true},"1284":{"n":"Julia Rodriguez Alvarez","e":true},"1286":{"n":"Adolfo Morales Hernandez-Sanjuan","e":true},"1288":{"n":"Maria Del Carmen Echavarria Terroba","e":true},"1289":{"n":"Maria Del Mar Gomez Rodriguez","e":true},"1290":{"n":"Yolanda San Lorenzo Serna","e":true},"1293":{"n":"Ana Caro Romero","e":true},"1294":{"n":"Santos Carrasco Gomez","e":true},"1296":{"n":"Jesus Aguilar España","e":true},"1297":{"n":"Alicia Alvarez Plaza","e":true},"1299":{"n":"Jose Andres Peralta De La Torre","e":true},"1300":{"n":"Sonia Lopez Caballero","e":true},"1301":{"n":"Jose Maria Ruiz Gutierrez","e":true},"1305":{"n":"Maria De Los Angeles Fernandez Aguado","e":true},"1307":{"n":"Alberto Hidalgo Martinez","e":true},"1308":{"n":"Fernando Miguel Martinez Roura","e":true},"1309":{"n":"Francisca Amores Zambrano","e":true},"1310":{"n":"Maria Asuncion Sanchez Gonzalez","e":true},"1311":{"n":"Francisco Javier Pozo Calamardo","e":true},"1314":{"n":"Maria Elisa Alcantarilla Martin","e":true},"1315":{"n":"Paloma Gonzalez Del Yerro Valdes","e":true},"1316":{"n":"Sonia Juarez Perez","e":true},"1317":{"n":"Jorge Andres Pajares Moral","e":true},"1318":{"n":"Maria Sonia Posac Ribera","e":true},"1321":{"n":"Elisa Zabia De La Mata","e":true},"1324":{"n":"Maria Del Carmen Garcia Martin","e":true},"1327":{"n":"Maria Soledad Ruiz Bullido","e":true},"1329":{"n":"Sonia Maria Casqueiro Alvarez","e":true},"1330":{"n":"Elisa Maria Sainz De Baranda Riva","e":true},"1333":{"n":"Maria Gemma Fernandez Saavedra","e":true},"1335":{"n":"Jose Luis Granda Alonso","e":true},"1338":{"n":"Gloria Llorente De La Torre","e":true},"1339":{"n":"Lucia Agulla Lanza","e":true},"1341":{"n":"Ramon Blanco Blanco","e":true},"1343":{"n":"Patricia Gonzalez Arrojo","e":true},"1344":{"n":"Paloma Gutierrez Paris","e":true},"1345":{"n":"Marta Moyano Raso","e":true},"1346":{"n":"Gemma Pinilla Sanz","e":true},"1350":{"n":"Susana Gomez Castaño","e":true},"1352":{"n":"Patricia Paez Borda","e":true},"1353":{"n":"Pablo Dominguez Maestro","e":true},"1354":{"n":"Maria Rosario Fernandez Molleda","e":true},"1358":{"n":"Nuria Lasa Gomez","e":true},"1360":{"n":"Beatriz Maria Gonzalez Rivero","e":true},"1362":{"n":"Maria Del Pilar Maldonado Felix","e":true},"1365":{"n":"Sara Leonis Parra","e":true},"1367":{"n":"Jose Guerrero Tramoyeres","e":true},"1369":{"n":"Pilar Moline Lopez","e":true},"1375":{"n":"Pilar Cermeño Roco","e":true},"1376":{"n":"Judith Estany Secanell","e":true},"1377":{"n":"Antonio Martinez De La Casa Rodriguez","e":true},"1380":{"n":"Gracia Esteban Guadalix","e":true},"1384":{"n":"Beatriz Martinez Martinez","e":true},"1386":{"n":"Maria Belen Montalvo Soto","e":true},"1387":{"n":"Rafael Angel Palma Crespo","e":true},"1388":{"n":"Marta Franch Martinez","e":true},"1391":{"n":"Maria Luisa Martin Burgos","e":true},"1394":{"n":"Maria Aranzazu Lopez Orejas","e":true},"1397":{"n":"Sylvia Scott-Glendonwyn Alvarez","e":true},"1398":{"n":"Alicia Porta Campbell","e":true},"1399":{"n":"Marina Quintero Sanchez","e":true},"1400":{"n":"Rafael Silva Lopez","e":true},"1402":{"n":"Paloma Briones Torralba","e":true},"1403":{"n":"Luis De Villanueva Ferrer","e":true},"1404":{"n":"Juan De La Ossa Montes","e":true},"1405":{"n":"Victoria Rodriguez-Acosta Ladron De Guevara","e":true},"1409":{"n":"Almudena Gonzalez Garcia","e":true},"1410":{"n":"Maria Teresa Saiz Ferrer","e":true},"1413":{"n":"Silvia Albaladejo Diaz-Alabart","e":true},"1414":{"n":"Maria Colina Sanchez","e":true},"1417":{"n":"Gonzalo Herraiz Aguirre","e":true},"1418":{"n":"Valentin Ganuza Ferreo","e":true},"1422":{"n":"Javier Cuevas Rivas","e":true},"1423":{"n":"Guzman De La Villa De La Serna","e":true},"1424":{"n":"Jose Manuel Diaz Perez","e":true},"1430":{"n":"Manuel Maria Alvarez-Buylla Ballesteros","e":true},"1434":{"n":"Virgilio Jose Navarro Cerrillo","e":true},"1435":{"n":"Maria Sandra Orero Bermejo","e":true},"1437":{"n":"Juan Luis Senso Gomez","e":true},"1440":{"n":"Carlos Blanco Sanchez De Cueto","e":true},"1443":{"n":"Jaime Briones Beneit","e":true},"1444":{"n":"Maria Del Rosario Victoria Bolivar","e":true},"1445":{"n":"Andrea De Dorremochea Guiot","e":true},"1449":{"n":"Maria Otilia Esteban Gutierrez","e":true},"1451":{"n":"Susana Romero Gonzalez","e":true},"1452":{"n":"Begoña Antonio Gonzalez","e":true},"1453":{"n":"Antonio Rodriguez Nadal","e":true},"1458":{"n":"Gemma Muñoz Minaya","e":true},"1459":{"n":"Maria Del Mar Rodriguez Gil","e":true},"1462":{"n":"Mercedes Caro Bonilla","e":true},"1464":{"n":"Esther Martin Cabanillas","e":true},"1465":{"n":"Antonio Ortega Fuentes","e":true},"1466":{"n":"Gema Sainz De La Torre Vilalta","e":true},"1467":{"n":"Arantxa Torrealday Garcia","e":true},"1468":{"n":"Ana Belen Gomez Murillo","e":true},"1470":{"n":"Maria Lourdes Redondo Garcia","e":true},"1472":{"n":"Cristina Somohano Pendas","e":true},"1474":{"n":"Amancio Amaro Vicente","e":true},"1475":{"n":"Ramon Maria Querol Aragon","e":true},"1476":{"n":"Luis Eduardo Roncero Contreras","e":true},"1477":{"n":"Milagros Duret Arguello","e":true},"1478":{"n":"Gloria Patricia Fernandez Botin","e":true},"1482":{"n":"Aranzazu Pequeño Rodriguez","e":true},"1483":{"n":"Maria Paloma Garcia Gonzalez","e":true},"1484":{"n":"Silvia Ayuso Gallego","e":true},"1485":{"n":"Marcos Juan Calleja Garcia","e":true},"1486":{"n":"Jose Sola Pellon","e":true},"1487":{"n":"Maria Jesus Martin Lopez","e":true},"1489":{"n":"Gloria Messa Teichman","e":true},"1490":{"n":"Maria Esmeralda Gonzalez Garcia Del Rio","e":true},"1494":{"n":"Andres Fernandez Rodriguez","e":true},"1497":{"n":"Laura Albarran Gil","e":true},"1498":{"n":"Maria De La Paloma Manglano Thovar","e":true},"1499":{"n":"Antonio Luis Roncero Contreras","e":true},"1501":{"n":"Luis Arredondo Sanz","e":true},"1502":{"n":"Maria Del Mar Torres-Fontes Suarez","e":true},"1503":{"n":"Raquel Diaz Ureña","e":true},"1505":{"n":"David Garcia Riquelme","e":true},"1506":{"n":"Maria Del Pilar Perez Calvo","e":true},"1509":{"n":"Maria De Villanueva Ferrer","e":true},"1510":{"n":"Rosa Martinez Serrano","e":true},"1511":{"n":"Raquel Cardeñosa Cuesta","e":true},"1512":{"n":"Begoña Lopez Rodriguez","e":true},"1514":{"n":"Maria Begoña Cendoya Arguello","e":true},"1518":{"n":"Eva Maria Escolar Escolar","e":true},"1520":{"n":"Alejandro Viñambres Romero","e":true},"1525":{"n":"Iñigo Maria Muñoz Duran","e":true},"1526":{"n":"Jose Maria Rico Maesso","e":true},"1530":{"n":"Sonia Maria Morante Mudarra","e":true},"1531":{"n":"Luis Mellado Aguado","e":true},"1533":{"n":"Joaquin De Diego Quevedo","e":true},"1534":{"n":"Barbara Egido Martin","e":true},"1536":{"n":"Rosa Maria Garcia Bardon","e":true},"1537":{"n":"Beatriz Verdasco Cediel","e":true},"1538":{"n":"Patricia Rosch Iglesias","e":true},"1539":{"n":"Ana Fuentes Hernangomez","e":true},"1546":{"n":"Maravillas Briales Rute","e":true},"1645":{"n":"Cristina Maria Deza Garcia","e":true},"1647":{"n":"Maria Dolores Uroz Moreno","e":true},"1650":{"n":"Marta Maria Barthe Garcia De Castro","e":true},"1651":{"n":"Maria Amparo Lopez Rivas","e":true},"1652":{"n":"Rodrigo Pascual Peña","e":true},"1653":{"n":"Jose Fernando Lozano Moreno","e":true},"1655":{"n":"Leticia Calderon Galan","e":true},"1656":{"n":"Maria Abellan Albertos","e":true},"1698":{"n":"Mario Castro Casas","e":true},"1699":{"n":"Carolina Perez-Sauquillo Pelayo","e":true},"1701":{"n":"Rosalia Jarabo Sancho","e":true},"1702":{"n":"Angel Francisco Codosero Rodriguez","e":true},"1703":{"n":"Alicia Reynolds Martinez","e":true},"1705":{"n":"Marta Hernandez Torrego","e":true},"1707":{"n":"Maria De La Concepcion Fuertes Suarez","e":true},"1712":{"n":"Margarita Maria Sanchez Jimenez","e":true},"1713":{"n":"Alberto Collado Martin","e":true},"1716":{"n":"Carlos Cabrero Del Nero","e":true},"1717":{"n":"Alvaro Armando Garcia De La Noceda De Las Alas Pumariño","e":true},"1718":{"n":"Miguel Angel Del Alamo Garcia","e":true},"1719":{"n":"Esteban Manuel Garcia Castellano","e":true},"1720":{"n":"Silvia Vazquez Senin","e":true},"1721":{"n":"Ruth Maria Oterino Sanchez","e":true},"1722":{"n":"Susana Gomez Cebrian","e":true},"1723":{"n":"Marta Cendra Guinea","e":true},"1725":{"n":"Maria Jose Bueno Ramirez","e":true},"1727":{"n":"Raquel Vilas Perez","e":true},"1728":{"n":"Maria Del Pilar Rodriguez Buesa","e":true},"1733":{"n":"Maria Luz Galan Cia","e":true},"1734":{"n":"Ignacio Requejo Garcia De Mateo","e":true},"1740":{"n":"Francisco Javier Milan Rentero","e":true},"1741":{"n":"Felisa Maria Gonzalez Ruiz","e":true},"1745":{"n":"Maria Soledad Valles Rodriguez","e":true},"1747":{"n":"Raquel Hidalgo Monsalve","e":true},"1749":{"n":"Miguel Lozano Sanchez","e":true},"1752":{"n":"Miriam Rodriguez Crespo","e":true},"1753":{"n":"Paloma Miana Ortega","e":true},"1755":{"n":"Olga Muñoz Gonzalez","e":true},"1756":{"n":"Maria De La Concepcion Moreno De Barreda Rovira","e":true},"1757":{"n":"Nayade Lopez Torres","e":true},"1759":{"n":"Jacobo Garcia Garcia","e":true},"1760":{"n":"Sonia Gomez Gonzalez","e":true},"1761":{"n":"Eduardo Codes Perez-Andujar","e":true},"1762":{"n":"Ana Isabel Rodriguez Bartolome","e":true},"1763":{"n":"Maria De Los Angeles Martinez Fernandez","e":true},"1766":{"n":"Berta Rodriguez-Curiel Espinosa","e":true},"1768":{"n":"Maria Del Carmen Lopez Garcia","e":true},"1770":{"n":"Jose Ramon Garcia Garcia","e":true},"1771":{"n":"Argimiro Vazquez Senin","e":true},"1772":{"n":"Imelda Marco Lopez De Zubiria","e":true},"1775":{"n":"Fuencisla Almudena Gozalo Sanmillan","e":true},"1776":{"n":"Maria Jesus Gutierrez Aceves","e":true},"1777":{"n":"Beatriz Palacios Gonzalez","e":true},"1778":{"n":"Ariadna Latorre Blanco","e":true},"1781":{"n":"Maria Eugenia Garcia Montero","e":true},"1784":{"n":"Amelia Martin Saez","e":true},"1787":{"n":"Noelia Nuevo Cabezuelo","e":true},"1790":{"n":"Sara Carrasco Machado","e":true},"1792":{"n":"Maria Teresa De Donesteve Y Velazquez-Gaztelu","e":true},"1794":{"n":"Paula Maria Guhl Millan","e":true},"1795":{"n":"Beatriz Ayllon Caro","e":true},"1800":{"n":"Sofia Maria Alvarez-Buylla Martinez","e":true},"1801":{"n":"Enrique Auberson Quintana-Lacaci","e":true},"1802":{"n":"Maria Inmaculada Mozos Serna","e":true},"1803":{"n":"Maria Concepcion Villaescusa Sanz","e":true},"1806":{"n":"Diana Fernandez Castan","e":true},"1808":{"n":"Ignacio Gomez Gallegos","e":true},"1809":{"n":"Carmen Catalina Rey Villaverde","e":true},"1812":{"n":"Maria Mercedes Romero Gonzalez","e":true},"1813":{"n":"Ana Rayon Castilla","e":true},"1815":{"n":"Mariano Cristobal Lopez","e":true},"1817":{"n":"Maria Pilar Tello Sanchez","e":true},"1818":{"n":"Jose Luis Sanchez San Frutos","e":true},"1819":{"n":"Ana Villa Ruano","e":true},"1820":{"n":"Belen Romero Muñoz","e":true},"1821":{"n":"Maria Esperanza Higuera Ruiz","e":true},"1822":{"n":"Maria Del Carmen Hurtado De Mendoza Lodares","e":true},"1823":{"n":"David Martin Ibeas","e":true},"1824":{"n":"Maria Llanos Palacios Garcia","e":true},"1827":{"n":"Cesar Berlanga Torres","e":true},"1828":{"n":"Cristina Matud Juristo","e":true},"1829":{"n":"Ines Tascon Herrero","e":true},"1830":{"n":"Javier Fraile Mena","e":true},"1832":{"n":"Maria Del Pilar Vega Valdesueiro","e":true},"1833":{"n":"Maria Luisa Maestre Gomez","e":true},"1834":{"n":"Elena Maria Medina Cuadros","e":true},"1837":{"n":"Maria Isabel Ayudarte Garcia","e":true},"1841":{"n":"Jacobo Borja Rayon","e":true},"1842":{"n":"Maria Teresa Infante Ruiz","e":true},"1843":{"n":"Inmaculada Guzman Altuna","e":true},"1848":{"n":"Ana Flor Martinez Blanco","e":true},"1850":{"n":"Sharon Rodriguez De Castro Rincon","e":true},"1851":{"n":"Carlos Alberto Sandeogracias Lopez","e":true},"1852":{"n":"Eduardo Martinez Perez","e":true},"1853":{"n":"Jose Alvaro Villasante Almeida","e":true},"1855":{"n":"Miriam Lopez Ocampos","e":true},"1857":{"n":"Sofia Teresa Gutierrez Figueiras","e":true},"1858":{"n":"Elena Natalia Gonzalez-Paramo Martinez-Murillo","e":true},"1859":{"n":"Ana Isabel Nesofsky Cervera","e":true},"1860":{"n":"Jose Enrique Rios Fernandez","e":true},"1861":{"n":"Maria Lourdes Madrid Sanz","e":true},"1864":{"n":"Maria Soledad Gallo Sallent","e":true},"1869":{"n":"Sergio Cabezas Llamas","e":true},"1870":{"n":"Maria Esther Fernandez Muñoz","e":true},"1871":{"n":"Cecilia Barroso Rodriguez","e":true},"1872":{"n":"Beatriz Perez-Urruti Iribarren","e":true},"1877":{"n":"Eduardo De La Torre Lastres","e":true},"1881":{"n":"Francisco Javier Calvo Perez","e":true},"1882":{"n":"Maria Villegas Ruiz","e":true},"1883":{"n":"Maria Jose Gonzalez De La Malla","e":true},"1885":{"n":"Carlos Saez Silvestre","e":true},"1886":{"n":"Jose Ramon Couto Aguilar","e":true},"1887":{"n":"Ana Maria Del Olmo Gomez","e":true},"1889":{"n":"Elena Rueda Sanz","e":true},"1891":{"n":"Esther Ana Gomez De Enterria Bazan","e":true},"1892":{"n":"Nuria Maria Serrada Llord","e":true},"1894":{"n":"Antonio Dominguez Ruiz","e":true},"1903":{"n":"Arturo Romero Ballester","e":true},"2005":{"n":"Juan Jose Lopez Somovilla","e":true},"2009":{"n":"Maria Luisa Ramon Padilla","e":true},"2010":{"n":"Maria Pilar Arnaiz Granda","e":true},"2013":{"n":"Sonia Bengoa Gonzalez","e":true},"2017":{"n":"Raul Ortega Gil","e":true},"2018":{"n":"Regina Maldonado Estevez","e":true},"2019":{"n":"Sylwia Ewa Dulnikiewicz .","e":true},"2020":{"n":"Pedro Ramon Ramirez Castellanos","e":true},"2022":{"n":"Gines Saura Garcia","e":true},"2039":{"n":"Agueda Maria Meseguer Guillen","e":true},"2043":{"n":"Patricia Isabel Heredero De La Rosa","e":true},"2044":{"n":"Alicia Tejedor Bachiller","e":true},"2049":{"n":"Javier Jañez Gutierrez","e":true},"2051":{"n":"Marta Granda Porta","e":true},"2053":{"n":"Carlos Ricardo Estevez Sanz","e":true},"2054":{"n":"Cesar Manteca Torres","e":true},"2056":{"n":"Raquel Cano Cuadrado","e":true},"2058":{"n":"Silvia Malagon Loyo","e":true},"2059":{"n":"Irene Martin Noya","e":true},"2062":{"n":"Maria Del Rocio Porras Pulido","e":true},"2063":{"n":"Ana Maria Alonso De Benito","e":true},"2064":{"n":"Susana De La Peña Gutierrez","e":true},"2066":{"n":"Jose Luis Blazquez Mendoza","e":true},"2074":{"n":"Noel Alain De Dorremochea Guiot","e":true},"2080":{"n":"Maria Del Mar Serrano Moreno","e":true},"2083":{"n":"Maria Teresa Abad Salcedo","e":true},"2086":{"n":"Luis Del Cacho Marhuenda","e":true},"2091":{"n":"Manuel Antonio Rodriguez Samper","e":true},"2100":{"n":"Nuria Feliu Suarez","e":true},"2106":{"n":"Monica Calero Perez","e":true},"2114":{"n":"Jorge Bartolome Dobarro","e":true},"2116":{"n":"Maria Paz Galindo Perrino","e":true},"2117":{"n":"Aida Fernandez Conejo","e":true},"2118":{"n":"Felipe De Iracheta Martin","e":true},"2120":{"n":"Ana Maria Lopez Reyes","e":true},"2121":{"n":"Antonia Maria Jose Blanco Blanco","e":true},"2126":{"n":"Pablo Hernaiz Pascual","e":true},"2127":{"n":"Celia Dominguez Ledo","e":true},"2131":{"n":"Carlos Manuel Barrado Lanzarote","e":true},"2136":{"n":"Maria Elena Juanas Fabeiro","e":true},"2137":{"n":"Carolina Beatriz Yustos Capilla","e":true},"2148":{"n":"Pedro Miguel Arrillaga Pison","e":true},"2155":{"n":"Rebeca Fernandez Osuna","e":true},"2165":{"n":"Marta Bartolome Dobarro","e":true},"2171":{"n":"Emma Belen Romanillos Alonso","e":true},"2173":{"n":"Maria Pilar Carrion Crespo","e":true},"2174":{"n":"Beatriz Castelo Gomez De Barreda","e":true},"2187":{"n":"Maria Teresa Sarandeses Dopazo","e":true},"2188":{"n":"Cristina Encarnacion Garcia Palomino","e":true},"2191":{"n":"Jose Noguera Chaparro","e":true},"2193":{"n":"Nuria Garrido Ruiz","e":true},"2195":{"n":"Ruben Llorente Amor","e":true},"2196":{"n":"Benjamin Gonzalez Lopez","e":true},"2197":{"n":"Teresa Del Rosario Campos Fraguas","e":true},"2200":{"n":"Barbara Sanchez Lorente","e":true},"2205":{"n":"Zahara Maria Rodriguez-Pereita Garcia","e":true},"2209":{"n":"Eva Garcia Rey","e":true},"2221":{"n":"Eduardo Jose Manzanos Llorente","e":true},"2222":{"n":"Miguel Alperi Muñoz","e":true},"2226":{"n":"Jose Cecilio Castillo Gonzalez","e":true},"2228":{"n":"Maria Luisa Garcia Manzano","e":true},"2236":{"n":"Maria Del Mar Sanchez Lopez","e":true},"2242":{"n":"Alvaro Nogueira Retana","e":true},"2250":{"n":"Alicia Velasco Mas","e":true},"2251":{"n":"Juan Carlos Martin Marquez","e":true},"2252":{"n":"Antonio Ruiz Adrados","e":true},"2253":{"n":"Jaime Gonzalez Minguez","e":true},"2259":{"n":"Alvaro Adan Vega","e":true},"2263":{"n":"Maria Gema Morenas Perona","e":true},"2265":{"n":"Ana Belen Del Olmo Lopez","e":true},"2266":{"n":"Elena Gutierrez Pertejo","e":true},"2269":{"n":"Patricia Carmen Rodriguez Gomez","e":true},"2270":{"n":"Patricia Gomez Martinez","e":true},"2273":{"n":"Alejandro Buiza Medina","e":true},"2286":{"n":"Carolina Martin-Maestro Barbero","e":true},"2290":{"n":"Ana Maria Del Pozo Perez","e":true},"2291":{"n":"Lourdes Nuria Rodriguez Fernandez","e":true},"2297":{"n":"Victoria Cañizares Coso","e":true},"2300":{"n":"Amaya Maria Rodriguez Gomez De Velasco","e":true},"2302":{"n":"Alvaro Carrasco Posada","e":true},"2303":{"n":"Jesus Luque Regueiro","e":true},"2305":{"n":"Natalia Delgado Perez-Iñigo","e":true},"2306":{"n":"Maria Isabel Gonzalez Gonzalez","e":true},"2308":{"n":"Maria Paula Carrillo Sanchez","e":true},"2313":{"n":"Isabel Rufo Chocano","e":true},"2330":{"n":"Silvia Lopez Llamosas","e":true},"2336":{"n":"Fernando Esteban Cid","e":true},"2337":{"n":"Paula De Diego Juliana","e":true},"2364":{"n":"Susana Arboli Pomata","e":true},"2367":{"n":"Gloria Teresa Robledo Machuca","e":true},"2373":{"n":"Susana Fernandez-Cañadas Paredes","e":true},"2383":{"n":"Ines Verdu Roldan","e":true},"2387":{"n":"Maria Victoria Leu Garcia","e":true},"2388":{"n":"Nuria Gala Ros","e":true},"2389":{"n":"Maria Teresa Martinez Ortiz","e":true},"2390":{"n":"Rosa Maria Ramirez Oreja","e":true},"2401":{"n":"Maria Sandra Garcia Fernandez-Villa","e":true},"2402":{"n":"Ana Maravillas Campos Perez-Manglano","e":true},"2416":{"n":"Helena Margarita Leal Mora","e":true},"2418":{"n":"Jose Luis Serrano Iglesias","e":true},"2420":{"n":"Oscar Herranz Sampedro","e":true},"2424":{"n":"Laura Argentina Gomez Molina","e":true},"2430":{"n":"Miguel Rodriguez Marcote","e":true},"2432":{"n":"Francisco Javier Marina Medina","e":true},"2434":{"n":"Ana Maria Prieto Campanon","e":true},"2439":{"n":"Gema Gallardo Lopez","e":true},"2440":{"n":"Cristina De Vega Suarez","e":true},"2441":{"n":"Manuel Sanchez-Puelles Gonzalez","e":true},"2443":{"n":"Gema Maria Chavernas Tejedor","e":true},"2452":{"n":"Fernando Pedreira Lopez","e":true},"2464":{"n":"Sofia Peña Salinas","e":true},"2467":{"n":"Jorge Nuño Alcaraz","e":true},"2475":{"n":"Beatriz Maestroarena Chaparro","e":true},"2500":{"n":"Maria Ines Guevara Romero","e":true},"2511":{"n":"Ana Rosa Perez-Frade Bejar","e":true},"2516":{"n":"Lucia Jimenez Lopez","e":true},"2519":{"n":"Cristina Bota Vinuesa","e":true},"2522":{"n":"Maria Del Mar Portales Yagüe","e":true},"2524":{"n":"Paula Gil Aguado","e":true},"2525":{"n":"Laura Martin Bringas","e":true},"2527":{"n":"Natacha Alejandra Perez Gomez","e":true},"2536":{"n":"Alejandro Muñoz Berzal","e":true},"2547":{"n":"Gerardo Muñoz Luengo","e":true},"2560":{"n":"Luis Cortes Cascon","e":true},"2586":{"n":"Beatriz Lopez-Amor Ruano","e":true},"2588":{"n":"Jesus Lopez Gracia","e":true},"2595":{"n":"Gloria Cecilia Garzon Cadena","e":true},"2598":{"n":"Maria Fernandez Garcia","e":true},"2600":{"n":"Marta Alcalde Miras","e":true},"2601":{"n":"Ana Rey Macridachis","e":true},"2619":{"n":"Jaime Quiñones Bueno","e":true},"2623":{"n":"Maria Dolores Gonzalez Rodriguez","e":true},"2628":{"n":"Sara Navas Zoya","e":true},"2629":{"n":"Cristina Madrigal Bengoechea","e":true},"2631":{"n":"Daniel Ruiz Toth","e":true},"2636":{"n":"Maria Dolores Gonzalez Company","e":true},"2642":{"n":"Santiago Montejano Argaña","e":true},"2644":{"n":"Alvaro Arsenio Diaz Del Rio San Gil","e":true},"2645":{"n":"Rosa Rivero Ortiz","e":true},"2646":{"n":"Maria Del Carmen Camilo Tiscordio","e":true},"2657":{"n":"Maria Isabel Bermudez Iglesias","e":true},"2660":{"n":"Antonio Javier Garcia Blanco","e":true},"2669":{"n":"Adrian Diaz Muñoz","e":true},"2673":{"n":"Diana Maria Molina Vallejo","e":true},"2679":{"n":"Leyla Gasanalieva Soloviova","e":true},"2680":{"n":"Elena Cantua Parejo","e":true},"2683":{"n":"Pelayo Alejandro Del Valle Alonso","e":true},"2695":{"n":"Lara Fernandez Hijicos Escribano","e":true},"2703":{"n":"Juan Manuel Rico Palomar","e":true},"2706":{"n":"Antonio Nicolas Vallellano","e":true},"2709":{"n":"Cristina Barajas Gomez","e":true},"2710":{"n":"Francisco Javier Fortes Ranera","e":true},"2711":{"n":"Maria De La Concepcion Bueno Garcia","e":true},"2712":{"n":"Jose Luis Pesquera Garcia","e":true},"2720":{"n":"Paloma Fernandez Osuna","e":true},"2724":{"n":"Nuño Segundo Blanco Rodriguez","e":true},"2726":{"n":"David Plaza Buquerin","e":true},"2740":{"n":"David Suarez Cordero","e":true},"2743":{"n":"Miriam Aceituno Martinez","e":true},"2744":{"n":"Monica Sanchez Cano","e":true},"2746":{"n":"Patricia Fernandez Manjon","e":true},"2747":{"n":"Maria Paloma Elena Del Moral Crespo","e":true},"2749":{"n":"Isabel De Las Casas Cañedo","e":true},"2761":{"n":"Gonzalo Jose Urbano Sastre","e":true},"2765":{"n":"Pablo Masoliver Macaya","e":true},"2767":{"n":"Jesus De La Cruz Hernandez Moyano","e":true},"2768":{"n":"Jose Manuel Perez Toyos","e":true},"2770":{"n":"Ignacio Lopez Chocarro","e":true},"2773":{"n":"Ramon De La Vega Peña","e":true},"2778":{"n":"Isabel De Noriega Quintanilla","e":true},"2779":{"n":"Laura Marquez Japon","e":true},"2786":{"n":"Francisco De Asis San Frutos Prieto","e":true},"2787":{"n":"Vicente Ruigomez Ortiz De Mendivil","e":true},"2788":{"n":"Santiago Rojo Dader","e":true},"2789":{"n":"Alicia Rueda Sanchez-Barbudo","e":true},"2790":{"n":"Laura Alonso Garcia","e":true},"2792":{"n":"Maria Dolores De Lope Mesas","e":true},"2794":{"n":"Javier Cano Alvarez","e":true},"2797":{"n":"Oscar Jesus Castellanos Quintero","e":true},"2798":{"n":"Sergio Royuela Baniandres","e":true},"2802":{"n":"Jose Manuel Jimenez Lopez","e":true},"2804":{"n":"Barbara Modrego Casado","e":true},"2805":{"n":"Rodrigo Facundo Caro Romero","e":true},"2807":{"n":"Matilde Rial Trueba","e":true},"2808":{"n":"Miguel Angel Montero Reiter","e":true},"2809":{"n":"Marta Rodrigo Rico","e":true},"2810":{"n":"Covadonga Gonzalez-Irun Rodriguez","e":true},"2811":{"n":"Paula Bonafuente Escalada","e":true},"2812":{"n":"Georgina Sanchez Martin-Herradon","e":true},"2814":{"n":"Yolanda Lopez Macias","e":true},"2819":{"n":"Rafael Lujan Panadero","e":true},"2824":{"n":"Alvaro Molinary Gozalo","e":true},"2827":{"n":"Paloma Caridad Ballester Jimenez","e":true},"2828":{"n":"Laura Gimenez Hidalgo","e":true},"2829":{"n":"Adriana Macarena Carrion Amate","e":true},"2833":{"n":"Fernando Sanchez-Izquierdo De Pablo","e":true},"2836":{"n":"Jose Luis Arcos Alonso","e":true},"2837":{"n":"Silvia Maria Aragones Barragan","e":true},"2838":{"n":"Juan Manuel Garcia Rodriguez","e":true},"2839":{"n":"Maria Eugenia Garcia Alcala","e":true},"2841":{"n":"Esperanza Susana Castromonte Lau","e":true},"2842":{"n":"Jose Antonio Felgueroso Lobo","e":true},"2843":{"n":"Barbara Amparo Lopez-Perea Otero","e":true},"2844":{"n":"Laura Gil De Ascension","e":true},"2845":{"n":"Javier Calvo-Fernandez Fierros","e":true},"2846":{"n":"Juan Carlos Guzman Cubero","e":true},"2847":{"n":"Iñigo De Diego Vargas","e":true},"2850":{"n":"Alba Gomez Rodriguez","e":true},"2851":{"n":"Alex Sobrinos Fernandez","e":true},"2852":{"n":"Maria Cabellos Garces","e":true},"2854":{"n":"Oria Patricia Martinez Bengoechea","e":true},"2856":{"n":"Elena Garcinuño Gonzalez","e":true},"2857":{"n":"Diana Sanchez Martin-Herradon","e":true},"2861":{"n":"Alvaro Rios Pino","e":true},"2863":{"n":"Lara Soriano Olona","e":true},"2867":{"n":"Samuel Dominguez Tejada","e":true},"2869":{"n":"Jose Luis Diaz Huertas","e":true},"2871":{"n":"Carlos Piñeira Pardo","e":true},"2873":{"n":"Judit Sanchez Barjola","e":true},"2874":{"n":"Tarcila Leonor Jami Chicaiza","e":true},"2876":{"n":"Tamara Matesanz Jimenez","e":true},"2878":{"n":"David Suarez Alvarez","e":true},"2881":{"n":"Claudia Martinez Garcia","e":true},"2884":{"n":"Antonio Lesmes Mansilla","e":true},"2886":{"n":"Benito Alfonso Manuel Caballero Gonzalez","e":true},"2887":{"n":"Rodrigo Monge Obregon","e":true},"2889":{"n":"Jose Antonio Julian Ortin","e":true},"2890":{"n":"Gloria Galan Alvaro","e":true},"2891":{"n":"Blanca Senent Calvo","e":true},"2892":{"n":"Javier Cabellos Garces","e":true},"2894":{"n":"Cristina Corella Ramos","e":true},"2895":{"n":"David Martin Almansa","e":true},"2896":{"n":"Lucio Muñoz Muñoz","e":true},"2899":{"n":"Adolfo Gonzalo Velayos Cacho","e":true},"2900":{"n":"Ana Isabel Peinado Rivas","e":true},"2901":{"n":"Eduardo Sanchez Agusti","e":true},"2902":{"n":"Alfonso Crespo Garcia","e":true},"2903":{"n":"Maria Dolores Catalan Rubio","e":true},"2904":{"n":"Gema Maria Casado Cabezas","e":true},"2906":{"n":"Blanca Perez Soberon","e":true},"2907":{"n":"Georgeta Simona Ion Zanfir","e":true},"2908":{"n":"Jose Manuel Garcia Garzon","e":true},"2913":{"n":"Eduardo Velasco Salgado","e":true},"2914":{"n":"Maria Belen Perez Bua","e":true},"2916":{"n":"Alberto Vall Cava De Llano","e":true},"2917":{"n":"Tania Vargas Benito","e":true},"2919":{"n":"Elena Pallero De Andres","e":true},"2921":{"n":"Maria Del Pilar De Navasqües Torroba","e":true},"2922":{"n":"Iolanta Apresyan .","e":true},"2924":{"n":"David Alejandro Chaparro Pernia","e":true},"2926":{"n":"David Nevado Bravo","e":true},"2927":{"n":"Eduardo Santos Serrano","e":true},"2929":{"n":"Marta Madrid Rodriguez","e":true},"2930":{"n":"Santiago Bujanda Romero","e":true},"2932":{"n":"Virginia Martinez Cano","e":true},"2933":{"n":"Fernando Antonio Sanchez Romero","e":true},"2936":{"n":"Lucia Isabel Quintas Galego","e":true},"30000":{"n":"Julio Cabellos Albertos","e":true},"30003":{"n":"Maria Del Rosario Chozas Del Alamo","e":true},"30014":{"n":"Aurora Gutierrez Martin","e":true},"30020":{"n":"Jose Antonio Martinez Martinez","e":true},"30023":{"n":"Jose Ignacio Osset Rambaud","e":true},"30033":{"n":"Juan Carlos Moreno Moreno","e":true},"31001":{"n":"Jose Alfonso Cobo Iñiguez","e":true},"31005":{"n":"Maria Del Rosario Larriba Romero","e":true},"31017":{"n":"Carlos Francisco Camacho Bascuñana","e":true},"31019":{"n":"Pedro Antonio Gomez-Elvira Suarez","e":true},"31020":{"n":"Azucena Sebastian Gonzalez","e":true},"31024":{"n":"Lina Vassalli Arribas","e":true},"31028":{"n":"Maria Cristina Perez Perrino","e":true},"31039":{"n":"Esther Lucia Calatrava Gil","e":true},"31041":{"n":"Gonzalo Deleito Garcia","e":true},"33003":{"n":"Andres Figueroa Espinosa De Los M.","e":true},"33017":{"n":"Maria De La Paloma Sanchez Oliva","e":true},"33026":{"n":"Jaime Briones Sanz","e":true},"33033":{"n":"Maria Bajon Garcia","e":true},"35021":{"n":"Maria Dolores Hurtado Portellano","e":true},"35023":{"n":"Gemma Maria Revuelta De Aniceto","e":true},"35031":{"n":"Maria Del Pilar Cimbron Mendez","e":true},"36003":{"n":"Juan Bosco Hornedo Muguiro","e":true},"36017":{"n":"Alberto Narciso Garcia Barrenechea","e":true},"36039":{"n":"Rafael Julvez Peris-Martin","e":true},"36040":{"n":"Ana Maria Ruiz Leal","e":true},"37008":{"n":"Angel Ramon Lopez Meseguer","e":true},"39002":{"n":"Javier Nogales Diaz","e":true},"40006":{"n":"Javier Garcia Guillen","e":true},"41000":{"n":"Oscar Gafas Pacheco","e":true},"41003":{"n":"Marta Murua Fernandez","e":true},"41011":{"n":"Inmaculada Osset Perez-Olague","e":true},"41012":{"n":"Carolina Almarcha Alcolea","e":true},"41014":{"n":"Hernan Kozak Cino","e":true},"42005":{"n":"Carmen Dominguez Cidoncha","e":true},"42012":{"n":"Maria Rosa Casas Cano","e":true},"42022":{"n":"Luis Gomez-Manzanilla Garcia","e":true},"42042":{"n":"Victor Juan Requejo Rodriguez-Guisado","e":true},"42045":{"n":"Silvia Virginia Cimarra Cardenal","e":true},"42047":{"n":"Maria Reynolds Martinez","e":true},"42058":{"n":"Juan Pedro Marcos Moreno","e":true},"42059":{"n":"Felipe Bermejo Valiente","e":true},"44025":{"n":"Maria Victoria Conejo Hernandez","e":true},"46012":{"n":"Rocio Garcia Dorado","e":true},"47000":{"n":"Raquel Lidia Santos Fernandez","e":true},"47002":{"n":"Maria Del Pilar Fernandez Guerra","e":true},"47008":{"n":"Javier Rumbero Sanchez","e":true},"47009":{"n":"Lucina Gomez Gomez","e":true},"47020":{"n":"Olga Lopez Mirayo","e":true},"48008":{"n":"Francisco Javier Gotor Invarato","e":true},"48011":{"n":"Rodolfo Garcia-Mochales Gutierrez","e":true},"48012":{"n":"Pilar Concepcion Moraleda Valenzuela","e":true},"165":{"n":"Ana Barallat Lopez","e":true},"398":{"n":"Maria Concepcion Hoyos Moliner","e":true},"680":{"n":"Francisco Javier Soto Fernandez","e":true},"696":{"n":"Maria Belen Casino Gonzalez","e":true},"722":{"n":"Marta Loreto Outeiriño Lago","e":true},"742":{"n":"Luis Amado Alcantara","e":true},"859":{"n":"Ana Maria Capilla Montes","e":true},"914":{"n":"Maria Del Carmen Barrera Rivas","e":true},"996":{"n":"Jose Carlos Naharro Perez","e":true},"1088":{"n":"Almudena Gil Segura","e":true},"1326":{"n":"Angel Luis Rodriguez Velasco","e":true},"1515":{"n":"Antonio Orteu Del Real","e":true},"2143":{"n":"Baltasar Antonio Diaz-Guerra Lopez","e":true},"2164":{"n":"Raquel Guillermo Blazquez","e":true},"2705":{"n":"Fernando Gonzalez Sanchez","e":true},"2756":{"n":"Pablo Rodrigo Gandara Arin","e":true},"36006":{"n":"Maria Del Pilar Poveda Guerra","e":true},"36014":{"n":"Maria Del Pilar Lantero Gonzalez","e":true},"36055":{"n":"Isabel Mora Garcia","e":true},"42000":{"n":"Francisca Inmaculada Izquierdo Labella","e":true},"42007":{"n":"Alberto Cardeña Fernandez","e":true},"42023":{"n":"Maria Teresa De Jesus Jimenez De La Peña","e":true},"42041":{"n":"Elsa Blanco Gonzalez","e":true},"42052":{"n":"Marta Ureba Alvarez-Ossorio","e":true},"42055":{"n":"Raquel Valencia Martin","e":true},"44007":{"n":"Maria Diez Rubio","e":true},"1807":{"n":"Maria Del Pilar Hidalgo Lopez","e":true},"784":{"n":"Maria Dolores Alvarez Martin","e":true},"2677":{"n":"Maria Del Carmen Espejo Cejas","e":true},"44021":{"n":"Ana Isabel Garcia Gonzalez","e":true},"2671":{"n":"Eduardo Centeno Ruiz","e":true},"33022":{"n":"Asuncion Alonso Ruiz","e":true},"941":{"n":"Maria Sonia Esquerdo Villodres","e":true},"1448":{"n":"Silvia Gonzalez Milara","e":true},"1797":{"n":"Gema Martin Hernandez","e":true},"1799":{"n":"Lorena Martin Hernandez","e":true},"1888":{"n":"Soledad Fernandez Urias","e":true},"2016":{"n":"Tamara Chippirras Trenado","e":true},"2027":{"n":"Sara Martin San Segundo","e":true},"2380":{"n":"Salvador Meca Gallego","e":true},"2831":{"n":"Ana Maria Gallardo Roncero","e":true},"36002":{"n":"Santiago Chippirras Sanchez","e":true},"36005":{"n":"Maria Azucena Meleiro Godino","e":true},"36012":{"n":"Juan Antonio Gomez Garcia","e":true},"36018":{"n":"Yolanda Fernandez Gomez","e":true},"36027":{"n":"Jesus Moreno Ayllon","e":true},"36035":{"n":"Carmelo Perdiguero Martin","e":true},"36038":{"n":"Francisco Franco Gonzalez","e":true},"36050":{"n":"Patricia De La Fuente Bravo","e":true},"36052":{"n":"Helena Maria Meneses Valero","e":true},"36053":{"n":"Beatriz Salmeron Blanco","e":true},"36054":{"n":"Bienvenida Gonzalez Cambronero","e":true},"36056":{"n":"Maria Dolores Porras Mena","e":true},"36057":{"n":"Paloma Del Barrio Barrios","e":true},"36058":{"n":"David Toboso Pizarro","e":true},"36060":{"n":"Maria Jose Blanco Delgado","e":true},"36065":{"n":"Diana Maria Jimenez De Miguel","e":true},"37015":{"n":"Jose Miguel Sampere Meneses","e":true},"37029":{"n":"Leticia Chippirras Trenado","e":true},"33025":{"n":"Luis Fernando Reviejo Lamas","e":true},"2459":{"n":"Maria Del Carmen Rodriguez Roman","e":true},"2741":{"n":"Carlos Humberto Navarro Perez","e":true},"36013":{"n":"Miguel Angel Alvarez Gomez","e":true},"36023":{"n":"Marta Lucas Cedillo","e":true},"37010":{"n":"Carlos Navarro Blanco","e":true},"37020":{"n":"Inmaculada Rosa Garcia-Milla Romea","e":true},"37022":{"n":"Epifania Esther Gines Garcia-Moreno","e":true},"37023":{"n":"Regina Morata Cazorla","e":true},"43008":{"n":"Cristina Sarmiento Cuenca","e":true},"46004":{"n":"Maria Jose Perez Martinez","e":true},"1383":{"n":"Irene Gutierrez Carrillo","e":true},"1793":{"n":"Maria Isabel Monfort Saez","e":true},"2647":{"n":"Fermin Sanchez Montolio","e":true},"2218":{"n":"Silvia Garcia Lopez","e":true},"2723":{"n":"Alejandra Salum Tascon","e":true},"2739":{"n":"Rocio Rodriguez Infantes","e":true},"2762":{"n":"Oscar Gomez Franco","e":true},"36064":{"n":"Raul Martin Beltran","e":true},"45000":{"n":"Alejandro Pinilla Martin","e":true},"45001":{"n":"Juan Jose Cebrian Badenes","e":true},"45003":{"n":"Silvia Bermejo Gonzalez","e":true},"45004":{"n":"Maria Del Prado Prieto Navarro","e":true},"2752":{"n":"Diana Higueras Piñeiro","e":true},"2781":{"n":"Cristina Pintado Roa","e":true},"45002":{"n":"Juan Luis Valgañon Gomez","e":true},"350":{"n":"Antonio Gomez De La Serna Adrada","e":true},"426":{"n":"Maria Pardillo Landeta","e":true},"511":{"n":"Jose Carlos Peñalver Garceran","e":true},"592":{"n":"Antonio Angel Sanchez-Jauregui Alcaide","e":true},"621":{"n":"Carmen Pardillo Landeta","e":true},"810":{"n":"Silvia De La Fuente Bravo","e":true},"828":{"n":"Roberto Alonso Verdu","e":true},"831":{"n":"Ana Claudia Lopez Thomaz","e":true},"857":{"n":"Ana Isabel Colmenarejo Jover","e":true},"973":{"n":"Raquel Gomez Sanchez","e":true},"1292":{"n":"Antonio Piña Ramirez","e":true},"1304":{"n":"Susana Escudero Gomez","e":true},"1649":{"n":"Gema Avellaneda Peña","e":true},"1746":{"n":"Gloria Arias Aranda","e":true},"1847":{"n":"Maria Ibañez Gomez","e":true},"1878":{"n":"Javier Gonzalez Fernandez","e":true},"1896":{"n":"Patricia Martin Lopez","e":true},"2038":{"n":"Guadalupe Hernandez Garcia","e":true},"2052":{"n":"Patricia Artola Aguiar","e":true},"2243":{"n":"Javier Libanio Cervera Rodriguez","e":true},"2366":{"n":"Monica Cabra Izquierdo","e":true},"2701":{"n":"Jose Antonio Moreno Almonacid","e":true},"2832":{"n":"Maria Del Carmen Del Moral Jimenez","e":true},"2872":{"n":"Ignacio Martinez Salcedo","e":true},"2888":{"n":"Manuel Alejandro Torres Magdaleno","e":true},"2893":{"n":"Mariam Tamimi Barrios","e":true},"2923":{"n":"Maria Carmen Gomez Torrego","e":true},"31023":{"n":"Ascension De Gracia Lopez Orcera","e":true},"42010":{"n":"Almudena Astray Gonzalez","e":true},"42016":{"n":"Elena Pelaez Pancheri","e":true},"42026":{"n":"Ignacio Garcia Lopez","e":true},"47005":{"n":"Maria Luisa Santamaria Caballero","e":true},"995":{"n":"Pilar Moneva Arce","e":true},"1469":{"n":"Javier Perez-Castaño Rivas","e":true},"1493":{"n":"Pilar Martin Chillaron","e":true},"1854":{"n":"Cristina De Prada Anton","e":true},"2140":{"n":"Francisco Jose Agudo Ruiz","e":true},"2376":{"n":"Maria Claudia Munteanu .","e":true},"2386":{"n":"Gloria Berlinches Gonzalez","e":true},"2204":{"n":"Paula Arias Alvarez","e":true},"1364":{"n":"Miguel Angel Baena Jimenez","e":true},"2025":{"n":"Ramon Valentin Iglesias Arauzo","e":true},"2176":{"n":"Maria Pilar Vicente Navarro","e":true},"2866":{"n":"Elena Rodellar Gonzalez","e":true},"38014":{"n":"Jose Maria Muñoz Ariza","e":true},"38017":{"n":"Almudena Muñoz De La Vega","e":true},"38025":{"n":"Maria Concepcion Wanguemert Garcia","e":true},"44015":{"n":"Ramon Felipe Moya Rospide","e":true},"44016":{"n":"Monica Quesada Sanz","e":true},"44018":{"n":"Maria Teresa Ruiz Ordovas","e":true},"44019":{"n":"Sandra Otero Romero","e":true},"37024":{"n":"David Blandin Garcia","e":true},"2858":{"n":"Carmen Sanchez Muñoz","e":true},"2860":{"n":"Maria Dolores Alcocer Anton","e":true},"30037":{"n":"Maria Del Mar Elipe Martin","e":true},"31031":{"n":"Yolanda Lopez Muñoz","e":true},"1184":{"n":"Cecilia Diaz-Caneja Rodriguez","e":true},"31013":{"n":"Maria Rosa Fernandez-Pedrera Cirera","e":true},"31018":{"n":"Jorge Joaquin Bernabeu Trave","e":true},"2161":{"n":"Esther Colmenarejo Gallego","e":true},"2835":{"n":"Catalina Rodriguez Morcillo","e":true},"178":{"n":"Luis Fernando Alvarez Wiese","e":true},"38009":{"n":"Felix Herrero Peña","e":true},"2089":{"n":"Maria Dolores Fernandez Prieto","e":true},"1061":{"n":"Julian Sanz Aragon","e":true},"2254":{"n":"Iñigo Sainz Millan","e":true},"2541":{"n":"Eduardo Serrano Manzano","e":true},"33021":{"n":"Alicia Martin Lopez","e":true},"33029":{"n":"Maria Del Rosario Sanz Morcillo","e":true},"704":{"n":"Maria Dorotea Soriano Cerdo","e":true},"2147":{"n":"Alejandra Garcia Garcia","e":true},"2515":{"n":"Pablo Garcia Perez","e":true},"40008":{"n":"Isabel Lopez Galvez","e":true},"40011":{"n":"Maria Teresa Moreno Mateos","e":true},"40013":{"n":"Yolanda De Lope Amor","e":true},"1735":{"n":"Ana Isabel Jimenez Acosta","e":true},"39000":{"n":"Maria Gemma Piriz Chacon","e":true},"39001":{"n":"Ana Teresa Mateos Martin","e":true},"807":{"n":"Coral Del Castillo-Olivares Barjacoba","e":true},"42006":{"n":"Maria Esther Centoira Parrondo","e":true},"44022":{"n":"Virginia Maria Saro Gonzalez","e":true},"41010":{"n":"Mercedes Del Rocio Crespo Barranco","e":true},"362":{"n":"Josefa Paz Landete Garcia","e":true},"499":{"n":"Esther Gomez Garcia","e":true},"676":{"n":"Maria Salud Jimenez Muñoz","e":true},"2050":{"n":"Sandra Cilla Diaz","e":true},"2288":{"n":"Veronica Moreno San Roman","e":true},"2461":{"n":"Jose Luis Martin-Cleto Sanchez","e":true},"33023":{"n":"Maria Soledad Garcia-Galan San Miguel","e":true},"38027":{"n":"Maria Antonia Pastor Peguero","e":true},"1542":{"n":"Jose Maria Torrejon Sampedro","e":true},"2023":{"n":"Jose Maria Posada Fernandez","e":true},"2105":{"n":"Maria Del Sagrario Jimenez Pozuelo","e":true},"2301":{"n":"Jose Antonio Sañudo Sanchez","e":true},"2413":{"n":"Aurora Cerviño Otero","e":true},"2745":{"n":"Rossmery Jessica Ojeda Farfan","e":true},"2830":{"n":"Alejandro Dominguez Garcia","e":true},"48002":{"n":"Maria Esmeralda Figueroa Lopez","e":true},"48003":{"n":"Maria Belen Sierra Recas","e":true},"48006":{"n":"Angel Luis Lozano Arias","e":true},"48010":{"n":"Maria Carolina Sanz Martin","e":true},"48001":{"n":"Alicia Orihuela Velasco","e":true},"2181":{"n":"Aranzazu Estrada Yañez","e":true},"2559":{"n":"Maria Isabel Gomez Aguirre","e":true},"30064":{"n":"Monica Higueras Carranza","e":true},"1270":{"n":"Maria Angeles Oliva Yanes","e":true},"1368":{"n":"Ana Maria Arauz De Robles Villalon","e":true},"2084":{"n":"Maria Paola Artola Aguiar","e":true},"2931":{"n":"Carmen Adela Canales Santander","e":true},"36024":{"n":"Ana Belen Izquierdo Manso","e":true},"561":{"n":"Javier Fernandez Estrada","e":true},"1496":{"n":"Inmaculada Plaza Villa","e":true},"1789":{"n":"Monica Pucci Rey","e":true},"2008":{"n":"Virginia Martin Bravo","e":true},"2599":{"n":"Maria De Las Nieves Segura Crespo","e":true},"30051":{"n":"Maria Del Carmen Sanchez Muñoz","e":true},"849":{"n":"Ana Isabel Lobera Arguelles","e":true},"1158":{"n":"Alfredo Gil Alegre","e":true},"1302":{"n":"Sara Martin Moreno","e":true},"1742":{"n":"Silvia Urdiales Gonzalez","e":true},"2777":{"n":"Eva Antonia Cortes Lopez","e":true},"36047":{"n":"Eva Maria Dominguez Vazquez","e":true},"46017":{"n":"Maria Nieves Baos Rebilla","e":true},"36030":{"n":"Ana Maria Galey Zafora","e":true},"11":{"n":"Leopoldo Puig Perez De Inestrosa","e":false},"23":{"n":"Enrique Sorribes Torra","e":false},"24":{"n":"Melquiades Alvarez-Buylla Alvarez","e":false},"39":{"n":"Pedro Antonio Larena Pardillo","e":false},"42":{"n":"Maria Luz Albacar Medina","e":false},"44":{"n":"Gregorio Puche Brun","e":false},"46":{"n":"Juan Ignacio Padura Reparaz","e":false},"67":{"n":"Jose Luis Sainz Varona","e":false},"69":{"n":"Santos De Gandarillas Carmona","e":false},"85":{"n":"Jose Luis Perez-Sirera Bosch-Labrus","e":false},"100":{"n":"Cesareo Hidalgo Senen","e":false},"102":{"n":"Jose Antonio Perez Martinez","e":false},"105":{"n":"Jose Luis Herranz Moreno","e":false},"109":{"n":"Maria Jose Millan Valero","e":false},"116":{"n":"Federico Jose Olivares De Santiago","e":false},"129":{"n":"Maria Del Pilar Santos Holgado","e":false},"131":{"n":"Rosa Maria Alvarez Alonso","e":false},"134":{"n":"Angel Luis Rodriguez Alvarez","e":false},"143":{"n":"Florencio Araez Martinez","e":false},"149":{"n":"Beatriz Ruano Casanova","e":false},"157":{"n":"Maria Africa Martin-Rico Sanz","e":false},"161":{"n":"Maria Del Pilar Crespo Nuñez","e":false},"162":{"n":"Amalia Jimenez Andosilla","e":false},"166":{"n":"Rosina Montes Agusti","e":false},"168":{"n":"Jesus Verdasco Triguero","e":false},"171":{"n":"Maria Cristina Huertas Vega","e":false},"174":{"n":"Jose Luis Rodriguez Pereita","e":false},"184":{"n":"Ana Isabel Muñoz De Juana","e":false},"185":{"n":"Maria Cruz Gomez-Trelles Pelaez","e":false},"192":{"n":"Isabel Fernandez-Criado Bedoya","e":false},"194":{"n":"Maria Rosa Vidal Gil","e":false},"196":{"n":"Antonio Francisco Garcia Diaz","e":false},"197":{"n":"Maria Amparo Alonso Leon","e":false},"199":{"n":"Jose Luis Muriel De Los Rios","e":false},"201":{"n":"Rosa Maria Del Pardo Moreno","e":false},"214":{"n":"Maria Del Carmen Garcia Tortuero","e":false},"215":{"n":"Maria Luisa Gavilan Rodriguez","e":false},"218":{"n":"Maria Del Rosario Villanueva Camuñas","e":false},"221":{"n":"Jose Maria Abad Tundidor","e":false},"225":{"n":"Margarita Lopez Jimenez","e":false},"230":{"n":"Maria Isabel Serrataco Contreras","e":false},"231":{"n":"Jose Pedro Vila Rodriguez","e":false},"232":{"n":"Luis Estrugo Muñoz","e":false},"233":{"n":"Elisa Hurtado Perez","e":false},"234":{"n":"Maria Soledad San Mateo Garcia","e":false},"238":{"n":"Maria Encarnacion Alonso Leon","e":false},"249":{"n":"Jose Luis Barneto Arnaiz","e":false},"252":{"n":"Maria Concepcion Albacar Rodriguez","e":false},"254":{"n":"Sara Martinez Rodriguez","e":false},"263":{"n":"Jaime Perez De Sevilla Guitard","e":false},"267":{"n":"Aurora Esquivias Yustas","e":false},"275":{"n":"Manuel Ramiro Lopez Fernandez","e":false},"282":{"n":"Elvira Camara Lopez","e":false},"295":{"n":"Jesus Iglesias Perez","e":false},"306":{"n":"Antonio Barreiro-Meiro Barbero","e":false},"315":{"n":"Rafael Sanchez-Izquierdo Nieto","e":false},"319":{"n":"Maria Dolores Martin Canton","e":false},"329":{"n":"Elsa Maria Fuentes Garcia","e":false},"334":{"n":"Maria Jesus Gonzalez Diez","e":false},"357":{"n":"Maria Del Coral Lorrio Alonso","e":false},"368":{"n":"Maria Eugenia Fernandez-Rico Fernandez","e":false},"373":{"n":"Pilar Iribarren Cavalle","e":false},"376":{"n":"Maria Teresa De Las Alas-Pumariño Larrañaga","e":false},"377":{"n":"Paloma Valles Tormo","e":false},"380":{"n":"Maria Del Mar Montero De Cozar Millet","e":false},"385":{"n":"Eduardo Velez Celemin","e":false},"388":{"n":"Josefina Ruiz Ferran","e":false},"396":{"n":"Dionisia Vazquez Robles","e":false},"409":{"n":"Maria Jose Laura Gonzalez Fortes","e":false},"418":{"n":"Teresa De Jesus Castro Rodriguez","e":false},"421":{"n":"Manuel Gomez Montes","e":false},"422":{"n":"Mariano De La Cuesta Hernandez","e":false},"425":{"n":"Lucila Torres Rius","e":false},"435":{"n":"Arturo Estebanez Garcia","e":false},"440":{"n":"Maria Paz Juristo Sanchez","e":false},"469":{"n":"Rosa Maria Rodriguez Molinero","e":false},"470":{"n":"Inmaculada Ibañez De La Cadiniere Fdez","e":false},"477":{"n":"Maria Luisa Martinez Parra","e":false},"494":{"n":"Pedro Rodriguez Rodriguez","e":false},"500":{"n":"Juan Francisco Alonso Adalia","e":false},"503":{"n":"Amparo Ramirez Plaza","e":false},"522":{"n":"Liliana Mijancos Gurruchaga","e":false},"528":{"n":"Maria Jesus Jaen Jimenez","e":false},"529":{"n":"Javier Jose De La Orden Gomez","e":false},"546":{"n":"Gregorio Garcia Santos","e":false},"557":{"n":"Anibal Bordallo Huidobro","e":false},"565":{"n":"Amparo Naharro Calderon","e":false},"575":{"n":"Maria Victoria Hernandez Claverie","e":false},"589":{"n":"Federico Ruiperez Palomino","e":false},"599":{"n":"Alberto Perez Ambite","e":false},"603":{"n":"Mercedes Orrico Blazquez","e":false},"608":{"n":"Juan Carlos Galvez Hermoso De Mendoza","e":false},"609":{"n":"Maria Luisa Sanchez Quero","e":false},"623":{"n":"Virginia Cardenal Pombo","e":false},"644":{"n":"Maria Del Rosario Castro Rodrigo","e":false},"658":{"n":"Maria Jose Aguilera Aguilera","e":false},"659":{"n":"Rosa Maria Arroyo Robles","e":false},"663":{"n":"Luis Olivares Suarez","e":false},"667":{"n":"Jose Javier Checa Delgado","e":false},"682":{"n":"Concepcion Sanchez-Cabezudo Gomez","e":false},"685":{"n":"Monica Gorria Berbiela","e":false},"688":{"n":"Marta Dolores Martinez Tripiana","e":false},"711":{"n":"Pilar Rodriguez Coronado","e":false},"715":{"n":"Alicia Martinez Villoslada","e":false},"732":{"n":"Juana Maria Cortes Aedo","e":false},"740":{"n":"Laura Casado De Las Heras","e":false},"757":{"n":"Luis Fernando Pozas Osset","e":false},"790":{"n":"Paloma De La Torre Cilleros","e":false},"794":{"n":"Maria Luisa Torrescusa Villaverde","e":false},"796":{"n":"Celia Celemin Viñuela","e":false},"799":{"n":"Maria Isabel Garcia Martinez","e":false},"805":{"n":"Luis Maria Carreras De Egaña","e":false},"809":{"n":"Leon Benasuly Benzaquen","e":false},"829":{"n":"Marta Paredes Pareja","e":false},"835":{"n":"Julia Pulido Poyal","e":false},"840":{"n":"Juan Ignacio Garcia Ponte","e":false},"844":{"n":"Maria Isabel Campillo Garcia","e":false},"852":{"n":"Maria Belen Lombardia Del Pozo","e":false},"902":{"n":"Alicia De Juanes Asenjo","e":false},"904":{"n":"Beatriz Aviles Diaz","e":false},"923":{"n":"Francisco Carrillo Ardila","e":false},"926":{"n":"Antonio Jesus Blanco Corredoira","e":false},"937":{"n":"Maria Jose Ruiperez Palomino","e":false},"942":{"n":"Ana Diaz Cañizares","e":false},"948":{"n":"Francisco Javier Lopez Montilla","e":false},"964":{"n":"Patricia Del Castillo-Olivares Barjacoba","e":false},"984":{"n":"Celina Casanova Machimbarrena","e":false},"1010":{"n":"Francisco Martin-Caro Garcia","e":false},"1025":{"n":"Maria Luisa Bermejo Garcia","e":false},"1066":{"n":"Maria Beatriz Gomez Lorenzo","e":false},"1068":{"n":"Maria Eva Guinea Ruenes","e":false},"1075":{"n":"Maria Cristina Ortega Lanzarot","e":false},"1079":{"n":"Elena Lourdes Fernandez Fernandez","e":false},"1092":{"n":"Sofia Carrillo Rus","e":false},"1101":{"n":"Ana Esther Ruiz Rodriguez","e":false},"1113":{"n":"Maria Del Mar Prat Rubio","e":false},"1114":{"n":"Maria Teresa Gutierrez Navarro","e":false},"1117":{"n":"Teresa Garcia Aparicio","e":false},"1139":{"n":"Maria Teresa Sanchez Recio","e":false},"1159":{"n":"Alberto Clemente Fernandez","e":false},"1166":{"n":"Emilia Raquel Araguas Gomez","e":false},"1168":{"n":"Fernando Muñoz Rios","e":false},"1172":{"n":"Ana Maria Hernandez Alcobendas","e":false},"1173":{"n":"Marta Uriarte Muerza","e":false},"1176":{"n":"Rosa Maria Nuñez Arana","e":false},"1199":{"n":"Celia Lopez Ariza","e":false},"1226":{"n":"Maria Lourdes Pierna Goñi","e":false},"1231":{"n":"Patricia Begoña Merodio De La Sota","e":false},"1245":{"n":"Maria Jose Moreno Diaz","e":false},"1264":{"n":"Yolanda Lopez Gomez-Calcerrada","e":false},"1269":{"n":"Jose Fidel Martin Diaz-Guerra","e":false},"1272":{"n":"Delicias Santos Montero","e":false},"1275":{"n":"Maria Remedios Escaño Vega","e":false},"1283":{"n":"Ana Maria Rueda Valverde","e":false},"1328":{"n":"Marta Burkhalter Plantalamor","e":false},"1342":{"n":"Daniela Del Olmo Sotelo","e":false},"1348":{"n":"Lourdes Maria Rodriguez Astudillo","e":false},"1351":{"n":"Susana Morales Montegrifo","e":false},"1356":{"n":"Carolina Lilly Martinez","e":false},"1392":{"n":"Maria Fernanda Gonzalez Fernandez-Mellado","e":false},"1406":{"n":"Maria Natividad Beteta Martinez","e":false},"1412":{"n":"Rosanna Pardina Casado","e":false},"1419":{"n":"Rocio Lleo Casanova","e":false},"1441":{"n":"Pastora Garcia-Manzano Jimenez De Andrade","e":false},"1450":{"n":"Maria Paz Martin Martin","e":false},"1460":{"n":"Maria Del Carmen Segovia Siles","e":false},"1488":{"n":"Yolanda Alonso Alvarez","e":false},"1516":{"n":"Maria De La Visitacion Roig Molins","e":false},"1521":{"n":"Maria Fe Rodriguez Fernandez","e":false},"1535":{"n":"Laura Paloma Garcia Ojembarrena","e":false},"1544":{"n":"Jose Maria Herrera Rodriguez","e":false},"1643":{"n":"Miriam Belen Rabade Goyanes","e":false},"1654":{"n":"Maria Dolores Madrid Almena","e":false},"1660":{"n":"Gonzalo Castello Gomez-Trevijano","e":false},"1673":{"n":"Ramon Moreno Peña","e":false},"1675":{"n":"Leandro Navarro Ungria","e":false},"1679":{"n":"Jose Sampere Muriel","e":false},"1700":{"n":"Maria Jose Ponce Mayoral","e":false},"1704":{"n":"Rocio Monterroso Barrero","e":false},"1706":{"n":"Maria Isabel Cotoner Presedo","e":false},"1708":{"n":"Rocio Blanco Martinez","e":false},"1731":{"n":"Maria De La Almudena Fernandez Sanchez","e":false},"1736":{"n":"Maria De Las Nieves Gallardo Rojo","e":false},"1764":{"n":"Maria Magdalena Holgado Muñoz","e":false},"1765":{"n":"Maria Rodriguez De Benito","e":false},"1769":{"n":"Nelida Gonzalez Florin","e":false},"1805":{"n":"Ana Maria Martin Barbon","e":false},"1826":{"n":"Ana Delia Villalonga Vicens","e":false},"1835":{"n":"Eloisa Garcia Martin","e":false},"1856":{"n":"Xavier De Goñi Echeverria","e":false},"1862":{"n":"Esperanza Martin Pulido","e":false},"1863":{"n":"Sara Herrero Rios","e":false},"1884":{"n":"Begoña Ortiz Fuentes","e":false},"1895":{"n":"Laura Uceda Sueiro","e":false},"1901":{"n":"Patricia Gomez-Pimpollo Del Pozo","e":false},"2040":{"n":"Maria Jose Teba Gonzalez","e":false},"2072":{"n":"Katia Gallegos Valiño","e":false},"2073":{"n":"Miguel Angel Tejedor Bachiller","e":false},"2079":{"n":"Yolene Puente Vazquez","e":false},"2081":{"n":"Silvia Gutierrez Sainz","e":false},"2088":{"n":"Maria Esther Alonso Rabadan","e":false},"2099":{"n":"Antonio Garcia Moraleda","e":false},"2110":{"n":"Carlos Alvarez Marhuenda","e":false},"2128":{"n":"Itziar Goñi Echeverria","e":false},"2138":{"n":"Miguel Garcia-Monton Gonzalez","e":false},"2151":{"n":"Vera Gema Conde Ballesteros","e":false},"2152":{"n":"Ana Maria Suarez Minguez","e":false},"2159":{"n":"Francisco Javier Pascual De Zulueta Jimenez","e":false},"2167":{"n":"Maria Isabel Rodriguez Martin","e":false},"2168":{"n":"Angelica Peralta Sanchez","e":false},"2172":{"n":"Maria Jesus Martinez Rojo","e":false},"2177":{"n":"Pablo Ignacio Speranza .","e":false},"2180":{"n":"Maria Isabel Garvin Ceacero","e":false},"2182":{"n":"Maria Nelida Guzman Salgado","e":false},"2183":{"n":"Maria Del Mar Largo Muñoz","e":false},"2206":{"n":"Jaime Gonzalez Dumas","e":false},"2213":{"n":"Lorena Rodriguez Urias","e":false},"2216":{"n":"Miguel Angel Hodar Gonzalez","e":false},"2225":{"n":"Eva Maria Sanchez Sanchez","e":false},"2227":{"n":"Sonia Belen Matas Andres","e":false},"2231":{"n":"Jose Antonio Nieto De Las Torres Garcia","e":false},"2233":{"n":"Ana Maria Masso Salido","e":false},"2237":{"n":"Julia Lafuente Roldan","e":false},"2239":{"n":"Enrique Fernandez Blanco","e":false},"2247":{"n":"Cristina Tallon Lopez","e":false},"2249":{"n":"Nuria Santillan De La Morena","e":false},"2261":{"n":"Isabel Cordovilla Gonzalez","e":false},"2264":{"n":"Lorena Peña Calvo","e":false},"2278":{"n":"Clara Luisa Barbeito Sendino","e":false},"2294":{"n":"Antonio Francisco Garcia Cortes","e":false},"2295":{"n":"Sonia Elena Rico Caballo","e":false},"2296":{"n":"Natan Esteban Garcia-Maroto","e":false},"2309":{"n":"Maria Isabel Sanjuan De Coca","e":false},"2311":{"n":"Carla Garcia Gomez","e":false},"2320":{"n":"Francisca Garcia Andres","e":false},"2321":{"n":"Jesus Valdepeñas Lopez","e":false},"2322":{"n":"Beatriz Valdepeñas Del Pozo","e":false},"2323":{"n":"Luis Alfonso Zarza Reynoso","e":false},"2326":{"n":"Pedro Antonio Morato Montero","e":false},"2327":{"n":"Virginia Trinidad Cifre Berenguer","e":false},"2334":{"n":"Pablo Blanco Rivas","e":false},"2344":{"n":"Gema De La Peña De Lucas","e":false},"2345":{"n":"Ana Gloria Burgos De Lucas","e":false},"2348":{"n":"Joaquin Carlos Casanovas Sanz","e":false},"2351":{"n":"Diego De Paz Aller","e":false},"2352":{"n":"David Hernandez Ortega","e":false},"2355":{"n":"Raquel Sanchez Campo","e":false},"2356":{"n":"Julia Maria Alvarez Martinez","e":false},"2357":{"n":"Aruka Gonzalez Boto","e":false},"2358":{"n":"Cristina Grimalt Vidal","e":false},"2359":{"n":"Fernando Garcia Moreno","e":false},"2362":{"n":"Maria Cruz Aguilar Munilla","e":false},"2365":{"n":"Francisco Javier Sanz Arranz","e":false},"2375":{"n":"Maria Rosa Lopez Fernandez","e":false},"2378":{"n":"Marta Maria Correas Gutierrez","e":false},"2379":{"n":"Maria Antonia Rico Maesso","e":false},"2382":{"n":"Maria Begoña Hevia Del Olmo","e":false},"2393":{"n":"Eduardo Molinero Moreno","e":false},"2395":{"n":"Elena Nieto De Las Torres Garcia","e":false},"2399":{"n":"Francisco Javier Garcia-Consuegra Carron","e":false},"2400":{"n":"Juan Luis Casañas Barrera","e":false},"2403":{"n":"Marta Lopez Gonzalez","e":false},"2404":{"n":"Monica De Prado Cañibano","e":false},"2406":{"n":"Maria Jesus Lorenzo Cuesta","e":false},"2408":{"n":"Pablo Sanchez Pascual","e":false},"2409":{"n":"Raquel Gonzalez Blazquez","e":false},"2410":{"n":"Gema Garcia Vicente","e":false},"2415":{"n":"Felisa Pancorbo Perez","e":false},"2423":{"n":"Elena Celdran Alvarez","e":false},"2429":{"n":"Susana Sanchez Simarro","e":false},"2433":{"n":"Tamara Maria Martinez Gomez","e":false},"2442":{"n":"Roberto Curto .","e":false},"2444":{"n":"Leire Gonzalez Osinaga","e":false},"2445":{"n":"Raquel Prieto Rodriguez","e":false},"2446":{"n":"Purificacion Nuñez Herreruela","e":false},"2447":{"n":"Alejandro Nuñez Miranda","e":false},"2449":{"n":"Marta Fernandez Jorge","e":false},"2450":{"n":"Guillermo Bello Ayala","e":false},"2451":{"n":"Maria Virginia Arribas Rodriguez","e":false},"2453":{"n":"Maria Dolores Pasalodos Frasnedo","e":false},"2462":{"n":"Juan Carlos Mogollon Lopez","e":false},"2463":{"n":"Serafin Angel Macho Rodriguez","e":false},"2466":{"n":"David Adrian Martinez","e":false},"2470":{"n":"Ana Isabel Sanchez Sanchez","e":false},"2471":{"n":"Miguel Angel Carrera Villar","e":false},"2476":{"n":"Juan Carlos Martin Sobrado","e":false},"2482":{"n":"Maria Concepcion Martinez Perez","e":false},"2488":{"n":"Maria Elena Martinez Vela","e":false},"2489":{"n":"Jose Ramon Devesa Marcos","e":false},"2490":{"n":"Diana Sanchez Garcia","e":false},"2491":{"n":"Antonio Nogales Romeo","e":false},"2492":{"n":"Cesar Fardy Rojas Barrantes","e":false},"2493":{"n":"Maria Rosario Miguel Garcia","e":false},"2496":{"n":"Sofhianny Hkarly Seuarz Benavides","e":false},"2498":{"n":"Gloria Serrano Arribas","e":false},"2499":{"n":"Zara Segador Gil","e":false},"2501":{"n":"Maria Begoña Garcia Delgado","e":false},"2502":{"n":"Maria Del Pilar Bravo Leon","e":false},"2507":{"n":"Francisco Javier Hernandez Vallina","e":false},"2508":{"n":"Jose Ramon Torres Garcia","e":false},"2509":{"n":"Patricia Vicente Mateo","e":false},"2510":{"n":"Maria Del Mar Martin Jimenez","e":false},"2517":{"n":"Maria Del Carmen Toro Garcia","e":false},"2520":{"n":"Jorge Salazar Vevia","e":false},"2521":{"n":"Yolanda Gil Lozano","e":false},"2523":{"n":"Francisco Javier Fernandez Ben","e":false},"2526":{"n":"Maria Desamparados Montes Garcia","e":false},"2531":{"n":"Raquel Viñuela Puente","e":false},"2533":{"n":"Alvaro Benavente Berzosa","e":false},"2534":{"n":"Celia Maria Moliner Vicente","e":false},"2539":{"n":"Maria Mercedes Garcia Celeiro","e":false},"2540":{"n":"Daniel Horcajo Alvaro","e":false},"2544":{"n":"Francisco Javier Gallego Luna","e":false},"2546":{"n":"Luisa Fuencisla Martin Castaños","e":false},"2548":{"n":"Aranzazu Perez Donat","e":false},"2549":{"n":"Mario Ataulfo Orsolich Cordero","e":false},"2551":{"n":"Oscar Francisco Gonzalez Gutierrez","e":false},"2556":{"n":"Maria Garde Martinez","e":false},"2557":{"n":"Luis Manuel Gonzalez Lopez","e":false},"2562":{"n":"Tabata Gonzalez Ruiz","e":false},"2563":{"n":"Alberto Miguel Primo Llacer","e":false},"2566":{"n":"Carlos Martin Merino Bernardos","e":false},"2567":{"n":"Balbino Jose Perez Garcia","e":false},"2568":{"n":"Maria Soledad Iglesias Polo","e":false},"2570":{"n":"Monica Godoy Suarez","e":false},"2572":{"n":"Marcos Jose Fernandez De Bernabe","e":false},"2580":{"n":"Julio Sanchez Poblador","e":false},"2582":{"n":"Borja Serrano Manzano","e":false},"2583":{"n":"Maria Jose Cuerva Lopez","e":false},"2585":{"n":"Manuel Cerrada Moreno","e":false},"2587":{"n":"Anselmo Alonso De La Cruz","e":false},"2594":{"n":"Carmen Ibañez Picazo","e":false},"2596":{"n":"Arantxa Cortes Cardona","e":false},"2602":{"n":"Carolina Luisa Granados Bayon","e":false},"2603":{"n":"Pedro Antonio Morato Antona","e":false},"2604":{"n":"Rocio Martinez Escribano","e":false},"2606":{"n":"Jesus Angel Rojo Pinilla","e":false},"2609":{"n":"Lorena Valdeon Piñan","e":false},"2612":{"n":"Silvia Maria Castillo Morcillo","e":false},"2617":{"n":"Maria Lorena Alvarez Jimenez","e":false},"2624":{"n":"Carlos Montesino Garro","e":false},"2626":{"n":"Natalia Gonzalez Gonzalez De Orduña","e":false},"2627":{"n":"Ana Gabriela Rodriguez Grand","e":false},"2638":{"n":"Maria Del Carmen Martin Nieto","e":false},"2649":{"n":"Sonia Maria Hernando Paniagua","e":false},"2651":{"n":"Cristina De La Calle Espada","e":false},"2653":{"n":"Jose Meseguer Barrionuevo","e":false},"2654":{"n":"Lourdes Maria Sanchez De Leon Fernandez","e":false},"2655":{"n":"Alberto Muñoz Pardal","e":false},"2662":{"n":"Ester Moreno Montero","e":false},"2664":{"n":"Julio Torres Nespral","e":false},"2666":{"n":"Casilda Medina Olmedo","e":false},"2668":{"n":"Alicia Miguez Parada","e":false},"2672":{"n":"Sergio Sanchez Reyeros","e":false},"2674":{"n":"Jaime Tesorero Colominas","e":false},"2675":{"n":"Junior Alberto Puffler .","e":false},"2676":{"n":"Sofia Haloui Haloui","e":false},"2678":{"n":"Aleksandra Anna Sobczak .","e":false},"2687":{"n":"Maria Jose Sanchez Prieto","e":false},"2689":{"n":"Felipe Carlos Hernandez Vargas","e":false},"2690":{"n":"Carolina Jimenez Santos","e":false},"2691":{"n":"Mercedes De La Infiesta Lecuona","e":false},"2692":{"n":"David Villaescusa Lara","e":false},"2693":{"n":"Pedro Manuel Lopez Sanchez","e":false},"2696":{"n":"David Lopez Sanchez","e":false},"2697":{"n":"Elena Gonzalez Lopez","e":false},"2698":{"n":"Gema Prieto Rodriguez","e":false},"2702":{"n":"Monica Izquierdo Pedrero","e":false},"2704":{"n":"Nuria Gonzalez Nieto","e":false},"2714":{"n":"Gonzalo Olmedo Ruiz","e":false},"2717":{"n":"Marta Gonzalez Lopez","e":false},"2718":{"n":"Rebeca Vanesa Agustin Tamarit","e":false},"2721":{"n":"Lorena Del Castillo Rogero","e":false},"2731":{"n":"Blanca Emily Ayala Olivares","e":false},"2732":{"n":"Beatriz Rajoy Perera","e":false},"2733":{"n":"Daniel Moreno Torres","e":false},"2734":{"n":"Ana Rocio Ortega Herrera","e":false},"2736":{"n":"Cristina Gonzalez Garcia","e":false},"2737":{"n":"Laura Casares Salcedo","e":false},"2738":{"n":"Monica Botas Fuente","e":false},"2748":{"n":"Pilar Martin Martin","e":false},"2751":{"n":"Julia Alonso Nanclares","e":false},"2754":{"n":"Maria Paz Artacho Trillo-Figueroa","e":false},"2755":{"n":"Maria Del Carmen Cava Benitez","e":false},"2757":{"n":"Sergio San Jose Blanco","e":false},"2759":{"n":"Elena Zamorano Froilan","e":false},"2760":{"n":"Maria Del Rocio Calero Ramirez","e":false},"2764":{"n":"Miriam Garcia Garcia-Cuevas","e":false},"2771":{"n":"Arturo Arija De La Cuerda","e":false},"2772":{"n":"Maria Victoria Olivares Carnicero","e":false},"2776":{"n":"Patricia Frade Ortea","e":false},"2780":{"n":"Diego Cristobal Parra Garcia","e":false},"2783":{"n":"Eva Gomez Mora","e":false},"2791":{"n":"Ana Castro Sanchez","e":false},"2795":{"n":"Juan Antonio Serna Castejon","e":false},"2803":{"n":"Noelia Arnaiz Martinez","e":false},"2806":{"n":"Valerio Renan Gaviño Zambrano","e":false},"2816":{"n":"Daniel Pedro Arrojo Schmitt","e":false},"2821":{"n":"Tamara Fernandez Pastor","e":false},"2825":{"n":"Irene Paredes Fuentes","e":false},"2834":{"n":"Monica Del Amo Hernandez","e":false},"2855":{"n":"Maria Dolores Hernandez Perez","e":false},"2865":{"n":"Maria Casillas Borrallo","e":false},"2868":{"n":"Gabriela Maria Gomez-Acebo Dennes","e":false},"2883":{"n":"Maria Cristina Aguilar Marti","e":false},"2897":{"n":"Maria Begoña Lasa Zabala","e":false},"2905":{"n":"Alicia Ines Cascon Alvarez","e":false},"2918":{"n":"Maria Elena Sainz Flores","e":false},"2925":{"n":"Maria Pilar Lera Candelas","e":false},"2937":{"n":"Lucia Delgado Muñoz","e":false},"30001":{"n":"Angel Luis Castaño Diaz","e":false},"30004":{"n":"Purificacion David Calero","e":false},"30005":{"n":"Maria Magdalena Diz Fernandez","e":false},"30018":{"n":"Maria Sara Lopez Lopez","e":false},"30028":{"n":"Fernando Rodriguez Serrano","e":false},"30030":{"n":"Angel San Martin Peñacoba","e":false},"30039":{"n":"Maria Fuencisla Martin Navarro","e":false},"31003":{"n":"Fabriciano Fernandez Fernandez","e":false},"31007":{"n":"Maria Del Pilar Perez Bayona","e":false},"31008":{"n":"Jose Antonio Sanandres Rivas","e":false},"31009":{"n":"Jose Manuel Segovia Galan","e":false},"31027":{"n":"Eva Lopez Garcia","e":false},"32000":{"n":"Vicente Garcia-Mochales Benavente","e":false},"32006":{"n":"Angel Luis Lozano Nuño","e":false},"33000":{"n":"Mariano De Andres Santos","e":false},"33006":{"n":"Rafael Antonio Gonzalez De Propios","e":false},"33009":{"n":"Jose Vicente Largo Lopez","e":false},"33024":{"n":"Francisco Javier Sanchez Flandes","e":false},"34000":{"n":"Maria Del Carmen Aguado Ortega","e":false},"34003":{"n":"Felix Gonzalez Pomares","e":false},"34005":{"n":"Javier Maria Ortiz España","e":false},"35001":{"n":"Luis Enrique Bobillo Garvia","e":false},"35007":{"n":"Jose Luis Pacheco Lasanta","e":false},"35010":{"n":"Elvira Ruiz Resa","e":false},"35013":{"n":"Pedro Garcia Sanchez","e":false},"36001":{"n":"Ana Maria Casas Muñoz","e":false},"36008":{"n":"Jose Antonio Sanchez-Cid Garcia-Tenorio","e":false},"36028":{"n":"Ana Garcia Orcajo","e":false},"36041":{"n":"Angela Vegas Ballesteros","e":false},"36059":{"n":"Felisa Sanchez Moreno","e":false},"37001":{"n":"Carlos Beltran Marin","e":false},"37002":{"n":"Anibal Casamayor Madrigal","e":false},"37004":{"n":"Luis Erausquin Burga","e":false},"37007":{"n":"Manuel Lopez Lopez","e":false},"37011":{"n":"Jose Ramon Pablo Orrico Blazquez","e":false},"37012":{"n":"Fernando Ortega Blanco","e":false},"37028":{"n":"Nuria Sandoval Agenjo","e":false},"37030":{"n":"Cristina Macein Lucas","e":false},"38003":{"n":"Antonio De Benito Martin","e":false},"38018":{"n":"Paloma Pozas Garrido","e":false},"38019":{"n":"Rosa Maria Redondo Robles","e":false},"38029":{"n":"Maria Isabel Lazo Serrano","e":false},"40002":{"n":"Maria Lourdes Brihuega De La Encina","e":false},"40009":{"n":"Maria Concepcion Martinez Poza","e":false},"41016":{"n":"Maria Del Pilar Cabanelas Herraez","e":false},"42002":{"n":"Isabel Oyague Sanchez","e":false},"42017":{"n":"Maria Josefa Gomez Olazabal","e":false},"42029":{"n":"Mercedes Basterreche Arcocha","e":false},"42032":{"n":"Marta Haydee Sada Garcia","e":false},"42038":{"n":"Cristina Zetterstrom Garcia","e":false},"42039":{"n":"Margarita Santos-Ascarza Tabares","e":false},"42040":{"n":"Maria Esther Moreno Reina","e":false},"42043":{"n":"Maria Jose Bollain Renilla","e":false},"42053":{"n":"Mirian Abengozar Matute","e":false},"44004":{"n":"Paloma Redondo Robles","e":false},"46003":{"n":"Maria Del Rosario Bobillo Garvia","e":false},"46023":{"n":"Patricia Oliva Alvarez","e":false},"47013":{"n":"Antonio Casabella Rueda","e":false},"47015":{"n":"Ana Isabel Crespo Rodriguez","e":false},"48005":{"n":"Gema Pilar Gomez Rodriguez","e":false},"48007":{"n":"Samuel Hernandez Villamon","e":false}};
+
+
+/* ── NOTIFICATION SYSTEM ── */
+function playNotifSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const t=ctx.currentTime;
+    // Two-tone ding
+    [[t,.12,880,.6],[t+.13,.1,1100,.4]].forEach(([when,dur,freq,vol])=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='sine'; o.frequency.value=freq;
+      g.gain.setValueAtTime(vol,when);
+      g.gain.exponentialRampToValueAtTime(.001,when+dur+.3);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(when); o.stop(when+dur+.35);
+    });
+  }catch(e){}
+}
+
+function showPush(title, body){
+  document.getElementById('push-title').textContent = title;
+  document.getElementById('push-body').textContent = body;
+  document.getElementById('push-time').textContent = 'ahora';
+  const b = document.getElementById('push-banner');
+  b.classList.add('show');
+  playNotifSound();
+  setTimeout(()=> b.classList.remove('show'), 5500);
+}
+
+function closePush(){
+  document.getElementById('push-banner').classList.remove('show');
+}
+
+function showEmail(tipo){
+  document.getElementById('email-overlay').classList.add('show');
+  switchEmail(1);
+  if(tipo === 'gestion'){
+    document.getElementById('em1-asunto').textContent = '✅ Tu gestión en JPI nº 8 ha sido aceptada';
+    document.getElementById('em1-saludo').textContent = 'Estimado/a Amancio Amaro Vicente,';
+    document.getElementById('em1-intro').innerHTML = 'Tu solicitud de gestión ha sido aceptada por <strong>A. Ruiz Fernández</strong> (Colegiado nº 1921).';
+    document.getElementById('em1-data').innerHTML = '<div><strong>Juzgado:</strong> JPI nº 8 · C/ Fúcar, 1</div><div><strong>Gestión:</strong> Presentación de escrito</div><div><strong>Procedimiento:</strong> Monitorio 912/2024</div><div><strong>Importe acordado:</strong> 15 €</div>';
+  }
+}
+
+function closeEmail(){
+  document.getElementById('email-overlay').classList.remove('show');
+}
+
+function switchEmail(n){
+  [1,2].forEach(i=>{
+    document.getElementById('email-'+i).style.display = i===n?'flex':'none';
+    document.getElementById('etab-'+i).classList.toggle('active', i===n);
+  });
+  document.getElementById('email-'+n).style.display='flex';
+  document.getElementById('email-'+n).style.flexDirection='column';
+}
+
+function showNotifAndEmail(tipo){
+  const isVista = tipo !== 'gestion';
+  showPush(
+    isVista ? '✅ Sustitución aceptada' : '✅ Gestión aceptada',
+    isVista ? 'A. Ruiz ha aceptado tu vista en JPI nº 15 · Se han enviado los datos' 
+            : 'A. Ruiz ha aceptado tu gestión en JPI nº 8 · Se han enviado los datos'
+  );
+  setTimeout(()=> showEmail(tipo), 800);
+}
+
+function finalizarServicio(){
+  showPush('🏁 Servicio completado', 'JPI nº 15 marcado como completado · Recuerda valorar al sustituto');
+  setTimeout(()=>{
+    const ov = document.getElementById('email-overlay');
+    document.getElementById('em1-asunto').textContent = '🏁 Sustitución completada — JPI nº 15';
+    document.getElementById('em1-intro').innerHTML = 'La sustitución en <strong>JPI nº 15</strong> ha sido marcada como completada. Recuerda abonar los <strong>30 €</strong> acordados a A. Ruiz Fernández.';
+    document.getElementById('em1-data').innerHTML = '<div><strong>Vista celebrada:</strong> JPI nº 15 · mañana 10:30h</div><div><strong>Sustituto:</strong> A. Ruiz Fernández</div><div><strong>Pago pendiente:</strong> 30 € por Bizum</div>';
+    ov.classList.add('show'); switchEmail(1);
+  }, 800);
+}
+
+function normalize(s){
+  return s.trim().toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/\s+/g,' ');
+}
+
+function resetColeValidation(){
+  const inpEl=document.getElementById('inp-cole');
+  if(inpEl && !inpEl.value) return;
+  // Re-run if there's already a number
+  const v=(inpEl||{}).value||'';
+  if(v) validarColegiado(v);
+}
+
+function validarColegiado(val) {
+  const v = val.trim();
+  const okEl = document.getElementById('msg-cole-ok');
+  const warnEl = document.getElementById('msg-cole-warn');
+  const errEl = document.getElementById('msg-cole-err');
+  const inpEl = document.getElementById('inp-cole');
+  const nomEl = document.getElementById('cole-nombre');
+  const warnTxt = document.getElementById('cole-warn-txt');
+  const errTxt = document.getElementById('cole-err-txt');
+  const nomInp = document.getElementById('inp-nombre-reg');
+  const nombreEscrito = (nomInp ? nomInp.value : '').trim();
+
+  [okEl, warnEl, errEl].forEach(e => { if(e) e.classList.remove('show'); });
+  if(inpEl) inpEl.classList.remove('finp-valid','finp-error','finp-warn');
+
+  if (!v || v.length < 2) return;
+
+  const col = COLEGIADOS[v];
+
+  if (!col) {
+    inpEl.classList.add('finp-error');
+    errTxt.textContent = 'El número ' + v + ' no figura en el censo del ICPM. Verifica el número o contacta con el Colegio.';
+    errEl.classList.add('show');
+  } else {
+    // Cross-check name - must enter name first
+    if (!nombreEscrito) {
+      inpEl.classList.add('finp-warn');
+      warnTxt.textContent = 'Introduce primero tu nombre completo para verificar que coincide con el número de colegiado.';
+      warnEl.classList.add('show');
+      return;
+    }
+    const coincide = normalize(col.n).includes(normalize(nombreEscrito)) ||
+                     normalize(nombreEscrito).split(' ').filter(w=>w.length>2)
+                       .every(w => normalize(col.n).includes(w));
+    if (!coincide) {
+      inpEl.classList.add('finp-error');
+      errTxt.textContent = 'Nombre no coincide con el censo del ICPM. Verifica tus datos o contacta con el Colegio.';
+      errEl.classList.add('show');
+    } else if (!col.e) {
+      inpEl.classList.add('finp-warn');
+      warnTxt.textContent = 'Verificado: tu número de colegiado es correcto, pero consta como NO EJERCIENTE en el ICAM. No podrás publicar solicitudes hasta regularizar tu situación.';
+      warnEl.classList.add('show');
+    } else {
+      inpEl.classList.add('finp-valid');
+      nomEl.textContent = 'Nombre verificado ✓';
+      okEl.classList.add('show');
+    }
+  }
+}
+
+
+function generarOficio(){
+  // Data from the accepted sustitución (in real app comes from backend)
+  const d = {
+    juzgado:     'Juzgado de 1ª Instancia nº 15 de Madrid',
+    tipo:        'Juicio Ordinario',
+    autos:       '347/2024',
+    parte:       'la parte demandante',
+    fecha:       'mañana a las 10:30 horas',
+    oferente:    'Amancio Amaro Vicente',
+    nColeOfer:   '2847',
+    sustituto:   'R. González Prieto',
+    nColeSust:   '1834',
+    hoy:         new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})
+  };
+  const w = window.open('','_blank','width=820,height=700,scrollbars=yes');
+  w.document.write(`<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8">
+<title>Oficio de Sustitución</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman:ital,wght@0,400;0,700;1,400&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Times New Roman',Times,serif;font-size:12pt;color:#000;background:#fff;padding:32px 60px;line-height:1.6}
+  .logo-bar{text-align:center;padding-bottom:16px;border-bottom:3px double #000;margin-bottom:24px}
+  .logo-bar img{height:60px}
+  .logo-bar p{font-size:10pt;color:#333;margin-top:6px;font-style:italic}
+  h1{text-align:center;font-size:14pt;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:28px;text-decoration:underline}
+  .body-text{text-align:justify;margin-bottom:16px;font-size:12pt}
+  .body-text strong{font-weight:bold}
+  .lugar-fecha{text-align:right;margin:28px 0 36px;font-style:italic}
+  .firmas{display:flex;justify-content:space-between;margin-top:8px}
+  .firma-box{text-align:center;width:45%}
+  .firma-box .firma-linea{border-top:1px solid #000;margin:48px auto 8px;width:80%}
+  .firma-box p{font-size:11pt}
+  .firma-box .cole{font-size:10pt;color:#444;margin-top:4px}
+  .sello{text-align:center;margin-top:36px;font-size:9pt;color:#666;border-top:1px solid #ccc;padding-top:10px}
+  @media print{body{padding:20px 40px} .no-print{display:none}}
+</style>
+</head><body>
+<div class="logo-bar">
+  <div style="font-size:13pt;font-weight:bold;letter-spacing:0.5px">ILTRE. COLEGIO DE PROCURADORES DE LOS TRIBUNALES DE MADRID</div>
+  <p>Art. 30 Estatuto General · Art. 44 Estatuto ICPM · Art. 543 LOPJ</p>
+</div>
+
+<h1>Oficio de Sustitución</h1>
+
+<p class="body-text">
+  Pongo en conocimiento de V.S., <strong>${d.juzgado}</strong>, que en los autos de <strong>${d.tipo}</strong>,
+  número <strong>${d.autos}</strong>, el Procurador D. <strong>${d.oferente}</strong>, colegiado nº <strong>${d.nColeOfer}</strong>,
+  que ostenta la representación de <strong>${d.parte}</strong>,
+  será sustituido para la vista señalada para el <strong>${d.fecha}</strong>
+  por su compañero/a, D./Dña. <strong>${d.sustituto}</strong>, colegiado/a nº <strong>${d.nColeSust}</strong>,
+  quien de acuerdo con el Art. 30 del Estatuto General de los Procuradores de los Tribunales,
+  aprobado por Real Decreto 1281/2002 de 5 de diciembre, Art. 44 del Estatuto del Iltre. Colegio
+  de Procuradores de Madrid, que entró en vigor el día 10 de mayo de 2002, y que son concordantes
+  con el Art. 543 de la Ley Orgánica del Poder Judicial y con el acuerdo de la Junta de Jueces
+  Civiles de Madrid, aceptará tal sustitución en el mismo acto de la comparecencia.
+</p>
+
+<p class="lugar-fecha">Madrid, ${d.hoy}</p>
+
+<div class="firmas">
+  <div class="firma-box">
+    <div class="firma-linea"></div>
+    <p><strong>Fdo.: Procurador/a sustituido/a</strong></p>
+    <p>${d.oferente}</p>
+    <p class="cole">Colegiado nº ${d.nColeOfer}</p>
+  </div>
+  <div class="firma-box">
+    <div class="firma-linea"></div>
+    <p><strong>Fdo.: Procurador/a sustituto/a</strong></p>
+    <p>${d.sustituto}</p>
+    <p class="cole">Colegiado nº ${d.nColeSust}</p>
+  </div>
+</div>
+
+<div class="sello">Documento generado por ProcurApp Madrid · ${d.hoy}</div>
+
+<div class="no-print" style="text-align:center;margin-top:28px">
+  <button onclick="window.print()" style="background:#0d1b2a;color:#fff;border:none;padding:12px 32px;font-size:13pt;border-radius:8px;cursor:pointer;margin-right:12px">🖨️ Imprimir / Guardar PDF</button>
+  <button onclick="window.close()" style="background:#eee;color:#333;border:1px solid #ccc;padding:12px 24px;font-size:13pt;border-radius:8px;cursor:pointer">Cerrar</button>
+</div>
+</body></html>`);
+  w.document.close();
+}
+
+function toggleOtraGestion(v){
+  document.getElementById('otra-gestion-wrap').style.display=v==='otra'?'block':'none';
+}
+function go(s){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.overlay').forEach(x=>x.classList.remove('show'));
+  var el=document.getElementById('s-'+s);
+  if(el) el.classList.add('active');
+}
+function tab(t){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('[id^="tc-"]').forEach(x=>x.style.display='none');
+  document.getElementById('t-'+t).classList.add('active');
+  document.getElementById('tc-'+t).style.display='flex';
+}
+function selTipo(t){
+  document.getElementById('tb-vista').className='type-btn'+(t==='vista'?' sel-vista':'');
+  document.getElementById('tb-gestion').className='type-btn'+(t==='gestion'?' sel-gestion':'');
+  document.getElementById('ff-vista').style.display=t==='vista'?'block':'none';
+  document.getElementById('ff-gestion').style.display=t==='gestion'?'block':'none';
+}
+function showSheet(id){document.getElementById(id).classList.add('show');}
+function closeSheet(id){document.getElementById(id).classList.remove('show');}
+function confirmReserva(){closeSheet('sh-reservar');showSheet('sh-revealed');showNotifAndEmail('vista');}
+</script>
+</body>
+</html>
