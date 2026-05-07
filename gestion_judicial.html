@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a2a4a">
+<title>Gestión Judicial · ICPM Madrid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Source+Serif+4:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────────── */
+:root{
+  --nv:#1a2a4a; --nv2:#243660; --gd:#c9a84c; --gd2:#e8c87a;
+  --rd:#c0392b; --gn:#2a7a50; --or:#e67e22;
+  --bg:#f7f4ef; --bg2:#ffffff; --bg3:#ede9e2;
+  --tx:#1c1c1e; --tx2:#5a5a63; --tx3:#8f8f99;
+  --bd:#d4cfc5; --bd2:#b8b2a6;
+  --sh:0 2px 12px rgba(26,42,74,.10);
+  --sha:0 6px 28px rgba(26,42,74,.16);
+  --r:10px; --r2:14px;
+  --ff-d:'Cormorant Garamond',Georgia,serif;
+  --ff-b:'Source Serif 4',Georgia,serif;
+}
+
+/* ── RESET ───────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--ff-b);font-size:16px;-webkit-text-size-adjust:100%}
+button{font-family:var(--ff-b);cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:var(--ff-b);font-size:14px}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+#shell{
+  max-width:430px;margin:0 auto;min-height:100vh;
+  background:var(--bg2);
+  box-shadow:var(--sha);
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+
+/* ── SCREENS ─────────────────────────────────────────────────────── */
+.sc{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sc.on{display:flex;flex-direction:column}
+
+/* ── HEADER ──────────────────────────────────────────────────────── */
+.hdr{
+  background:var(--nv);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  flex-shrink:0;position:sticky;top:0;z-index:10;
+}
+.hdr-back{
+  color:var(--gd);font-size:26px;line-height:1;padding:0 4px 0 0;
+  background:none;border:none;cursor:pointer;flex-shrink:0;
+}
+.hdr-ico{color:var(--gd);font-size:20px;flex-shrink:0;line-height:1}
+.hdr-ttl{font-family:var(--ff-d);font-size:17px;font-weight:500;color:#fff;flex:1;letter-spacing:.2px}
+
+/* ── HUB TOP ─────────────────────────────────────────────────────── */
+.hub-hero{
+  background:var(--nv);
+  padding:28px 20px 32px;
+  text-align:center;
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.hub-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,168,76,.18),transparent 70%);
+  pointer-events:none;
+}
+.hub-emblem{
+  width:64px;height:64px;margin:0 auto 12px;
+  border:1.5px solid rgba(201,168,76,.4);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:var(--gd);
+  background:rgba(201,168,76,.07);
+}
+.hub-title{font-family:var(--ff-d);font-size:24px;font-weight:600;color:#fff;letter-spacing:.3px;margin-bottom:3px}
+.hub-sub{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase}
+.hub-date{font-size:12px;color:rgba(255,255,255,.32);margin-top:8px;font-style:italic}
+
+/* ── HUB GRID ────────────────────────────────────────────────────── */
+.hub-body{padding:20px 16px 24px;flex:1}
+.hub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.hc{
+  background:var(--bg2);border:1px solid var(--bd);
+  border-top:3px solid var(--nv);
+  border-radius:var(--r2);padding:18px 14px 16px;
+  text-align:left;position:relative;
+  transition:box-shadow .18s,transform .12s;
+  cursor:pointer;
+}
+.hc:hover{box-shadow:var(--sha);transform:translateY(-2px)}
+.hc:active{transform:scale(.98)}
+.hc-wide{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:16px 20px}
+.hc-ico{font-size:26px;margin-bottom:10px;line-height:1}
+.hc-wide .hc-ico{font-size:28px;margin-bottom:0;flex-shrink:0}
+.hc-title{font-family:var(--ff-d);font-size:15px;font-weight:500;color:var(--nv);margin-bottom:4px;line-height:1.2}
+.hc-sub{font-size:11px;color:var(--tx2);line-height:1.4}
+
+/* ── BADGE ───────────────────────────────────────────────────────── */
+.badge{
+  position:absolute;top:-9px;right:-9px;
+  min-width:22px;height:22px;border-radius:11px;
+  background:var(--gd);color:#fff;
+  font-size:11px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 5px;border:2.5px solid var(--bg2);
+  font-family:var(--ff-b);
+}
+.badge.urg{background:var(--rd);animation:blink .85s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1;background:var(--rd)}50%{opacity:.3;background:#e55}}
+
+/* ── HUB ALERT ───────────────────────────────────────────────────── */
+.hub-alert{
+  margin-top:16px;padding:12px 14px;
+  border-radius:var(--r);font-size:13px;line-height:1.55;
+  border:1px solid;
+}
+.hub-alert.warn{background:rgba(192,57,43,.06);border-color:rgba(192,57,43,.25);color:var(--rd)}
+.hub-alert.inf{background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.3);color:#7a6020}
+
+/* ── CONTENT WRAPPER ─────────────────────────────────────────────── */
+.cnt{padding:16px;flex:1}
+
+/* ── CARDS ───────────────────────────────────────────────────────── */
+.card{
+  background:var(--bg2);border:1px solid var(--bd);
+  border-radius:var(--r2);padding:16px;margin-bottom:14px;
+}
+.card-title{
+  font-family:var(--ff-d);font-size:16px;font-weight:500;
+  color:var(--nv);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+
+/* ── FORM ELEMENTS ───────────────────────────────────────────────── */
+.fl{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.fl:last-child{margin-bottom:0}
+label.lb{font-size:11px;font-weight:500;color:var(--tx2);letter-spacing:.7px;text-transform:uppercase}
+input[type=text],input[type=date],input[type=time],
+input[type=number],select,textarea{
+  width:100%;padding:10px 12px;
+  border:1px solid var(--bd);border-radius:var(--r);
+  background:var(--bg);color:var(--tx);
+  font-size:14px;transition:border-color .15s,box-shadow .15s;
+  -webkit-appearance:none;appearance:none;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--nv);
+  box-shadow:0 0 0 3px rgba(26,42,74,.08);
+}
+textarea{resize:vertical;min-height:70px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5a63' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* ── TOGGLE GROUP ────────────────────────────────────────────────── */
+.tg{display:flex;gap:6px;margin-bottom:0}
+.tb{
+  flex:1;padding:9px 8px;
+  border:1px solid var(--bd);border-radius:var(--r);
+  background:var(--bg);color:var(--tx2);
+  font-size:12px;font-weight:500;
+  transition:all .15s;line-height:1.3;text-align:center;
+}
+.tb:hover{border-color:var(--bd2);color:var(--tx)}
+.tb.on{background:var(--nv);color:#fff;border-color:var(--nv)}
+.tb.gdon.on{background:var(--gd);border-color:var(--gd);color:#fff}
+
+/* ── PRIMARY BUTTON ──────────────────────────────────────────────── */
+.btn-prim{
+  width:100%;padding:14px;border-radius:var(--r2);
+  background:var(--nv);color:#fff;
+  font-size:14px;font-weight:500;letter-spacing:.2px;
+  font-family:var(--ff-d);font-size:16px;
+  transition:background .15s,transform .1s;
+  margin-bottom:14px;
+}
+.btn-prim:hover{background:var(--nv2)}
+.btn-prim:active{transform:scale(.99)}
+
+/* ── EXPAND BUTTON ───────────────────────────────────────────────── */
+.btn-exp{
+  width:100%;padding:12px;border-radius:var(--r);
+  border:1.5px dashed var(--bd2);background:transparent;
+  color:var(--tx);font-size:13px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:14px;transition:all .15s;
+}
+.btn-exp:hover{border-color:var(--nv);color:var(--nv)}
+.btn-exp.op{background:var(--nv);color:#fff;border-color:var(--nv)}
+
+/* ── SEARCH BAR ──────────────────────────────────────────────────── */
+.sbar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg2);border:1px solid var(--bd);
+  border-radius:var(--r);padding:10px 14px;
+  margin-bottom:14px;
+}
+.sbar input{border:none;background:transparent;flex:1;font-size:14px;color:var(--tx);outline:none;width:100%}
+.sbar-ico{font-size:16px;color:var(--tx3);flex-shrink:0}
+
+/* ── INFO NOTE ───────────────────────────────────────────────────── */
+.inn{
+  padding:10px 14px;background:var(--bg);
+  border-left:3px solid var(--gd);
+  border-radius:0 var(--r) var(--r) 0;
+  font-size:12px;color:var(--tx2);line-height:1.6;
+  margin-bottom:14px;
+}
+.inn.red{border-left-color:var(--rd)}
+.inn.gn{border-left-color:var(--gn)}
+
+/* ── RESULT CARD ─────────────────────────────────────────────────── */
+.rcard{
+  background:var(--bg2);border:1px solid var(--bd);
+  border-top:3px solid var(--gd);border-radius:var(--r2);
+  padding:16px;margin-bottom:14px;
+}
+.rcard-title{
+  font-family:var(--ff-d);font-size:17px;font-weight:500;
+  color:var(--nv);margin-bottom:14px;
+}
+.rrow{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.rrow:last-child{margin-bottom:0}
+.rico{font-size:16px;color:var(--tx3);width:18px;flex-shrink:0;margin-top:2px;text-align:center}
+.rlb{font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px}
+.rv{font-size:14px;color:var(--tx);margin-top:3px;line-height:1.4}
+.rv.gd{color:var(--gd);font-weight:500}
+.rv.rd{color:var(--rd);font-weight:500}
+.rv.nv{color:var(--nv);font-weight:500}
+.rv.lg{font-size:18px;font-family:var(--ff-d);font-weight:600}
+.rdiv{border:none;border-top:1px solid var(--bd);margin:10px 0}
+.warn-box{
+  margin-top:10px;padding:10px 12px;
+  background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.22);
+  border-radius:var(--r);font-size:12px;color:var(--rd);line-height:1.5;
+}
+
+/* ── COURT ITEMS ─────────────────────────────────────────────────── */
+.court-item{
+  background:var(--bg2);border:1px solid var(--bd);
+  border-radius:var(--r);padding:12px 14px;
+  margin-bottom:8px;display:flex;align-items:center;gap:12px;
+  transition:box-shadow .15s;
+}
+.court-item:hover{box-shadow:var(--sh)}
+.court-emo{font-size:22px;width:30px;text-align:center;flex-shrink:0}
+.court-n{font-size:14px;font-weight:500;color:var(--nv);margin-bottom:3px}
+.court-a{font-size:12px;color:var(--tx2)}
+.court-k{font-size:11px;color:var(--gd);margin-top:2px}
+.court-chv{font-size:16px;color:var(--bd2);margin-left:auto}
+
+/* ── LIST ITEMS (sust / gest) ────────────────────────────────────── */
+.li{
+  background:var(--bg2);border:1px solid var(--bd);
+  border-left:4px solid var(--bd2);
+  border-radius:var(--r2);padding:14px 15px;
+  margin-bottom:10px;
+}
+.li.pn{border-left-color:var(--or)}
+.li.ac{border-left-color:var(--gn)}
+.li.cp{border-left-color:var(--gn)}
+.li.rj,.li.cl{border-left-color:var(--rd)}
+.li.ur{border-left-color:var(--rd)!important}
+
+.lh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+.lt{font-size:14px;font-weight:500;color:var(--nv);line-height:1.3}
+.ls{font-size:12px;color:var(--tx2);margin-top:3px;line-height:1.4}
+.lbs{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.pill{font-size:10px;font-weight:500;padding:3px 9px;border-radius:10px;white-space:nowrap;letter-spacing:.2px}
+.p-pn{background:rgba(230,126,34,.12);color:#a05800}
+.p-ac,.p-cp{background:rgba(42,122,80,.12);color:var(--gn)}
+.p-rj,.p-cl{background:rgba(192,57,43,.12);color:var(--rd)}
+.p-ur{background:var(--rd);color:#fff;animation:blink .85s ease-in-out infinite}
+.lnote{font-size:12px;color:var(--tx2);font-style:italic;margin-top:5px;padding-top:5px;border-top:1px solid var(--bg3)}
+.lftr{font-size:11px;color:var(--tx3);margin-top:6px}
+.lftr strong{color:var(--tx2)}
+.lact{display:flex;gap:8px;margin-top:10px}
+.btn-acc{flex:1;padding:8px;border-radius:var(--r);border:1px solid rgba(42,122,80,.3);background:rgba(42,122,80,.06);color:var(--gn);font-size:12px;font-weight:500;transition:all .15s}
+.btn-acc:hover{background:rgba(42,122,80,.14)}
+.btn-rej{flex:1;padding:8px;border-radius:var(--r);border:1px solid rgba(192,57,43,.3);background:rgba(192,57,43,.06);color:var(--rd);font-size:12px;font-weight:500;transition:all .15s}
+.btn-rej:hover{background:rgba(192,57,43,.14)}
+.btn-done{flex:1;padding:8px;border-radius:var(--r);border:1px solid rgba(26,42,74,.25);background:rgba(26,42,74,.05);color:var(--nv);font-size:12px;font-weight:500;transition:all .15s}
+.btn-done:hover{background:rgba(26,42,74,.1)}
+
+/* ── URGENTE CHECKBOX ────────────────────────────────────────────── */
+.urg-chk{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:var(--r);
+  border:1px solid var(--bd);background:var(--bg);
+  cursor:pointer;font-size:13px;font-weight:500;color:var(--tx);
+  transition:all .15s;user-select:none;
+}
+.urg-chk.on{background:rgba(192,57,43,.07);border-color:rgba(192,57,43,.35);color:var(--rd)}
+.urg-chk input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--rd)}
+
+/* ── SECTION LABEL ───────────────────────────────────────────────── */
+.sec-lbl{
+  font-size:11px;font-weight:500;color:var(--tx3);
+  letter-spacing:1px;text-transform:uppercase;
+  margin:16px 0 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* ── EMPTY STATE ─────────────────────────────────────────────────── */
+.empty{
+  text-align:center;padding:48px 24px;
+  color:var(--tx3);font-size:14px;line-height:1.6;
+}
+.empty-ico{font-size:36px;display:block;margin-bottom:12px;opacity:.4}
+
+/* ── TABS (Mis Solicitudes) ──────────────────────────────────────── */
+.tab-bar{
+  display:flex;border-bottom:2px solid var(--bg3);
+  margin-bottom:16px;
+  flex-shrink:0;background:var(--bg2);
+  position:sticky;top:0;z-index:5;
+}
+.tab-btn{
+  flex:1;padding:13px 8px;font-size:13px;font-weight:500;
+  color:var(--tx2);border-bottom:2px solid transparent;
+  transition:all .15s;margin-bottom:-2px;text-align:center;
+}
+.tab-btn.on{color:var(--nv);border-bottom-color:var(--nv)}
+
+/* ── PLAZOS SPECIFICS ────────────────────────────────────────────── */
+.pday-ctrl{display:flex;align-items:center;gap:12px}
+.pday-input{width:80px;text-align:center;font-size:22px;font-weight:500;font-family:var(--ff-d);padding:10px}
+
+/* ── ERROR ───────────────────────────────────────────────────────── */
+.err-box{
+  padding:10px 12px;background:rgba(192,57,43,.07);
+  border:1px solid rgba(192,57,43,.25);border-radius:var(--r);
+  font-size:12px;color:var(--rd);line-height:1.5;margin-bottom:12px;
+}
+
+/* ── MODAL / CONFIRM ─────────────────────────────────────────────── */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(26,42,74,.55);z-index:100;
+  align-items:flex-end;justify-content:center;
+}
+.overlay.on{display:flex}
+.modal{
+  background:var(--bg2);border-radius:var(--r2) var(--r2) 0 0;
+  padding:24px 20px 32px;width:100%;max-width:430px;
+  animation:slideUp .22s ease-out;
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:.5}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:var(--ff-d);font-size:18px;font-weight:500;color:var(--nv);margin-bottom:8px}
+.modal-sub{font-size:13px;color:var(--tx2);line-height:1.55;margin-bottom:20px}
+.modal-acts{display:flex;gap:10px}
+.mbtn-prim{flex:1;padding:12px;border-radius:var(--r);background:var(--nv);color:#fff;font-size:14px;font-weight:500}
+.mbtn-sec{flex:1;padding:12px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:14px;font-weight:500}
+
+/* ── TOAST ───────────────────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--nv);color:#fff;padding:10px 18px;border-radius:20px;
+  font-size:13px;z-index:200;white-space:nowrap;
+  transition:transform .25s ease,opacity .25s;opacity:0;
+}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media(min-width:500px){#shell{margin-top:24px;min-height:calc(100vh - 48px);border-radius:18px;overflow:hidden}}
+</style>
+</head>
+<body>
+<div id="shell">
+
+<!-- ════════════════════ HUB ════════════════════ -->
+<div id="s-hub" class="sc on">
+  <div class="hub-hero">
+    <div class="hub-emblem">⚖️</div>
+    <div class="hub-title">Gestión Judicial</div>
+    <div class="hub-sub">ICPM · Herramientas Profesionales</div>
+    <div class="hub-date" id="hub-date"></div>
+  </div>
+  <div class="hub-body">
+    <div class="hub-grid">
+      <button class="hc" onclick="go('juzgados')" style="border-top-color:#2c4a8a">
+        <div class="hc-ico">🏛️</div>
+        <div class="hc-title">Información Juzgados</div>
+        <div class="hc-sub">Directorio de órganos judiciales de Madrid</div>
+      </button>
+      <button class="hc" onclick="go('plazos')" style="border-top-color:#2a6a50">
+        <div class="hc-ico">📅</div>
+        <div class="hc-title">Cálculo de Plazos</div>
+        <div class="hc-sub">LexNet y notificación en papel</div>
+      </button>
+      <button class="hc" id="hc-s" onclick="go('sust')" style="border-top-color:#7a3020">
+        <div class="badge" id="bd-s" style="display:none"></div>
+        <div class="hc-ico">🔄</div>
+        <div class="hc-title">Sustituciones</div>
+        <div class="hc-sub">Vistas y comparecencias</div>
+      </button>
+      <button class="hc" id="hc-g" onclick="go('gest')" style="border-top-color:#1a3a5c">
+        <div class="badge" id="bd-g" style="display:none"></div>
+        <div class="hc-ico">📋</div>
+        <div class="hc-title">Gestiones</div>
+        <div class="hc-sub">Encargos judiciales</div>
+      </button>
+      <button class="hc hc-wide" onclick="go('mis')" style="border-top-color:var(--gd)">
+        <div class="badge" id="bd-m" style="display:none;background:var(--nv)"></div>
+        <div class="hc-ico" style="font-size:32px;color:var(--gd)">👤</div>
+        <div>
+          <div class="hc-title" style="color:var(--gd)">Mis Solicitudes</div>
+          <div class="hc-sub">Un vistazo a lo que pedí · lo que tengo que hacer</div>
+        </div>
+      </button>
+    </div>
+    <div id="hub-alr" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ JUZGADOS ════════════════════ -->
+<div id="s-juzgados" class="sc">
+  <div class="hdr">
+    <button class="hdr-back" onclick="go('hub')" aria-label="Volver">‹</button>
+    <span class="hdr-ico">🏛️</span>
+    <span class="hdr-ttl">Información Juzgados</span>
+  </div>
+  <div class="cnt">
+    <div class="sbar">
+      <span class="sbar-ico">🔍</span>
+      <input type="text" id="jq" placeholder="Buscar por tipo, dirección…" oninput="renderCourts(this.value)" autocomplete="off">
+    </div>
+    <div class="inn">
+      <strong>Directorio Madrid 2026.</strong> Para datos completos (teléfono, email, planta, magistrado) abre la app <em>Directorio Judicial de Madrid</em>.
+    </div>
+    <div id="court-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ PLAZOS ════════════════════ -->
+<div id="s-plazos" class="sc">
+  <div class="hdr">
+    <button class="hdr-back" onclick="go('hub')" aria-label="Volver">‹</button>
+    <span class="hdr-ico">📅</span>
+    <span class="hdr-ttl">Cálculo de Plazos Procesales</span>
+  </div>
+  <div class="cnt">
+    <!-- Tipo notificación -->
+    <div class="card">
+      <div class="card-title">Tipo de notificación</div>
+      <div class="tg" style="margin-bottom:12px">
+        <button class="tb on" id="tp-p" onclick="setT('p')">📄 Papel / Correo</button>
+        <button class="tb" id="tp-l" onclick="setT('l')">💻 LexNet</button>
+      </div>
+      <div id="tnote" class="inn" style="margin-bottom:0"></div>
+    </div>
+    <!-- Fecha/hora -->
+    <div class="card">
+      <div class="card-title">Datos de recepción</div>
+      <div class="g2" id="date-grid">
+        <div class="fl" style="margin-bottom:0">
+          <label class="lb">Fecha de recepción</label>
+          <input type="date" id="pf">
+        </div>
+        <div class="fl" id="hour-grp" style="display:none;margin-bottom:0">
+          <label class="lb">Hora de recepción</label>
+          <input type="time" id="ph">
+        </div>
+      </div>
+    </div>
+    <!-- Duración -->
+    <div class="card">
+      <div class="card-title">Duración del plazo</div>
+      <div class="pday-ctrl">
+        <input type="number" class="pday-input" id="pd" min="1" max="365" value="20">
+        <div class="tg" style="flex:1">
+          <button class="tb on" id="td-h" onclick="setTD('h')">⚖️ Hábiles</button>
+          <button class="tb" id="td-n" onclick="setTD('n')">📆 Naturales</button>
+        </div>
+      </div>
+    </div>
+    <div id="plz-err" style="display:none" class="err-box"></div>
+    <button class="btn-prim" onclick="calcP()">Calcular plazo →</button>
+    <div id="plz-res" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ SUSTITUCIONES ════════════════════ -->
+<div id="s-sust" class="sc">
+  <div class="hdr">
+    <button class="hdr-back" onclick="go('hub')" aria-label="Volver">‹</button>
+    <span class="hdr-ico">🔄</span>
+    <span class="hdr-ttl">Sustituciones de Vistas</span>
+  </div>
+  <div class="cnt">
+    <button class="btn-exp" id="sf-btn" onclick="toggleSF()">➕ Nueva solicitud de sustitución</button>
+    <div id="sf-form" style="display:none" class="card">
+      <div class="card-title">Nueva solicitud</div>
+      <div class="g2">
+        <div class="fl"><label class="lb">Fecha</label><input type="date" id="sf-f"></div>
+        <div class="fl"><label class="lb">Hora</label><input type="time" id="sf-h" value="10:00"></div>
+      </div>
+      <div class="fl"><label class="lb">Juzgado</label>
+        <input type="text" id="sf-j" placeholder="Ej: Instrucción nº 12 (Plaza de Castilla)" autocomplete="off">
+      </div>
+      <div class="fl"><label class="lb">Tipo de acto</label>
+        <select id="sf-t">
+          <option>Vista Oral</option><option>Comparecencia</option>
+          <option>Juicio</option><option>Ratificación</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="fl">
+        <label class="lb">Urgente</label>
+        <label class="urg-chk" id="sf-urg">
+          <input type="checkbox" id="sf-u" onchange="toggleUrgChk('sf-urg',this)">
+          <span id="sf-urg-txt">🔴 Marcar como urgente</span>
+        </label>
+      </div>
+      <div class="fl">
+        <label class="lb">Motivo / Notas</label>
+        <textarea id="sf-n" placeholder="Motivo de la sustitución…"></textarea>
+      </div>
+      <button class="btn-prim" style="margin-bottom:0" onclick="addSust()">Enviar solicitud</button>
+    </div>
+    <div id="sust-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ GESTIONES ════════════════════ -->
+<div id="s-gest" class="sc">
+  <div class="hdr">
+    <button class="hdr-back" onclick="go('hub')" aria-label="Volver">‹</button>
+    <span class="hdr-ico">📋</span>
+    <span class="hdr-ttl">Encargos y Gestiones</span>
+  </div>
+  <div class="cnt">
+    <button class="btn-exp" id="gf-btn" onclick="toggleGF()">➕ Nuevo encargo</button>
+    <div id="gf-form" style="display:none" class="card">
+      <div class="card-title">Nuevo encargo</div>
+      <div class="fl"><label class="lb">Tipo de gestión</label>
+        <select id="gf-t">
+          <option>Presentación escrito</option><option>Recogida resolución</option>
+          <option>Entrega documentos</option><option>Verificación expediente</option>
+          <option>Diligencia de ordenación</option><option>Cédula de emplazamiento</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="fl"><label class="lb">Juzgado / Organismo</label>
+        <input type="text" id="gf-j" placeholder="Ej: Jdo. Penal nº 5 (Julián Camarillo)" autocomplete="off">
+      </div>
+      <div class="g2">
+        <div class="fl" style="margin-bottom:0"><label class="lb">Plazo límite</label><input type="date" id="gf-p"></div>
+        <div class="fl" style="margin-bottom:0">
+          <label class="lb">Urgente</label>
+          <label class="urg-chk" id="gf-urg">
+            <input type="checkbox" id="gf-u" onchange="toggleUrgChk('gf-urg',this)">
+            <span>🔴 Urgente</span>
+          </label>
+        </div>
+      </div>
+      <div class="fl" style="margin-top:12px">
+        <label class="lb">Instrucciones</label>
+        <textarea id="gf-n" placeholder="Instrucciones detalladas para el encargo…"></textarea>
+      </div>
+      <button class="btn-prim" style="margin-bottom:0" onclick="addGest()">Enviar encargo</button>
+    </div>
+    <div id="gest-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ MIS SOLICITUDES ════════════════════ -->
+<div id="s-mis" class="sc">
+  <div class="hdr">
+    <button class="hdr-back" onclick="go('hub')" aria-label="Volver">‹</button>
+    <span class="hdr-ico">👤</span>
+    <span class="hdr-ttl">Mis Solicitudes</span>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn on" id="mt-a" onclick="setMisTab('a')">📤 Lo que he pedido</button>
+    <button class="tab-btn" id="mt-b" onclick="setMisTab('b')">📥 Lo que tengo que hacer</button>
+  </div>
+  <div class="cnt" style="padding-top:0">
+    <div id="mis-list"></div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div class="modal-acts">
+      <button class="mbtn-sec" onclick="closeModal()">Cancelar</button>
+      <button class="mbtn-prim" id="modal-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════ */
+var ME = 'Carmen G.'; // Usuario actual
+
+var SUST = JSON.parse(localStorage.getItem('sust') || 'null') || [
+  {id:1,f:'2026-05-10',h:'10:30',j:'Instrucción nº 12 (Plaza de Castilla, 1)',t:'Vista Oral',e:'pendiente',u:true,sol:'Pedro González',n:'Imposibilidad por baja médica'},
+  {id:2,f:'2026-05-13',h:'09:00',j:'Plaza 48 · TI Madrid (Rosario Pino, 5)',t:'Comparecencia',e:'pendiente',u:false,sol:'Ana Martínez',n:'Conflicto de agenda'},
+  {id:3,f:'2026-05-16',h:'11:00',j:'Familia nº 3 (Francisco Gervás, 10)',t:'Vista',e:'aceptada',u:false,sol:ME,ab:'Luis Sánchez',n:'Viaje previsto'},
+  {id:4,f:'2026-05-23',h:'10:00',j:'Penal nº 8 (Julián Camarillo, 11)',t:'Juicio',e:'pendiente',u:false,sol:ME,ab:'',n:'Seminario formativo previsto'},
+  {id:5,f:'2026-05-20',h:'09:30',j:'Social nº 12 (Princesa, 3)',t:'Vista Oral',e:'aceptada',u:false,sol:'Rosa Pérez',ab:ME,n:''},
+];
+
+var GEST = JSON.parse(localStorage.getItem('gest') || 'null') || [
+  {id:1,t:'Presentación escrito',j:'Jdo. Penal nº 5 (Julián Camarillo, 11)',p:'2026-05-07',e:'pendiente',u:true,sol:'Carmen López',ab:'',n:'Recurso de apelación URGENTE — llevar 3 copias'},
+  {id:2,t:'Recogida resolución',j:'Instrucción nº 23 (Plaza de Castilla, 1)',p:'2026-05-15',e:'pendiente',u:false,sol:'Miguel Torres',ab:'',n:'Auto de sobreseimiento provisional'},
+  {id:3,t:'Verificación expediente',j:'Mercantil nº 3 (Gran Vía, 52)',p:'2026-05-22',e:'aceptada',u:false,sol:ME,ab:'Carlos Vega',n:'Comprobar estado pieza separada'},
+  {id:4,t:'Presentación escrito',j:'Contencioso nº 7 (Gran Vía, 19)',p:'2026-05-14',e:'completada',u:false,sol:'Rosa Pérez',ab:ME,n:'Entregado en plazo'},
+  {id:5,t:'Entrega documentos',j:'Registro Civil Central (Pradillo, 66)',p:'2026-05-18',e:'pendiente',u:false,sol:'Óscar Ruiz',ab:'',n:''},
+];
+
+function saveSust(){localStorage.setItem('sust',JSON.stringify(SUST))}
+function saveGest(){localStorage.setItem('gest',JSON.stringify(GEST))}
+
+/* ══════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════ */
+var CUR = 'hub';
+function go(s){
+  document.querySelectorAll('.sc').forEach(function(x){x.classList.remove('on')});
+  document.getElementById('s-'+s).classList.add('on');
+  CUR = s;
+  if(s==='hub')renderHub();
+  if(s==='juzgados')renderCourts('');
+  if(s==='sust')renderSust();
+  if(s==='gest')renderGest();
+  if(s==='mis')renderMis();
+  window.scrollTo(0,0);
+}
+
+/* ══════════════════════════════════════════════════════
+   HUB
+══════════════════════════════════════════════════════ */
+function renderHub(){
+  var n = new Date();
+  document.getElementById('hub-date').textContent =
+    n.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  var ps = SUST.filter(function(x){return x.e==='pendiente'&&x.sol!==ME}).length;
+  var pg = GEST.filter(function(x){return x.e==='pendiente'&&x.sol!==ME}).length;
+  var us = SUST.some(function(x){return x.u&&x.e==='pendiente'&&x.sol!==ME});
+  var ug = GEST.some(function(x){return x.u&&x.e==='pendiente'&&x.sol!==ME});
+
+  // Badge sustituciones
+  setBadge('bd-s', ps, us);
+  // Badge gestiones
+  setBadge('bd-g', pg, ug);
+
+  // Badge mis (tareas aceptadas pendientes de hacer)
+  var pm = SUST.filter(function(x){return x.ab===ME&&x.e==='aceptada'}).length
+           + GEST.filter(function(x){return x.ab===ME&&(x.e==='aceptada')}).length;
+  var bm = document.getElementById('bd-m');
+  bm.style.display = pm>0 ? 'flex':'none';
+  bm.textContent = pm;
+  bm.className = 'badge'; // siempre azul
+
+  // Alerta
+  var alr = document.getElementById('hub-alr');
+  var anyUrg = us || ug;
+  if(ps>0||pg>0){
+    alr.style.display='block';
+    alr.className='hub-alert '+(anyUrg?'warn':'inf');
+    var msg='';
+    if(anyUrg) msg+='<strong>⚠️ Hay solicitudes urgentes pendientes.</strong><br>';
+    if(ps>0) msg+=ps+' sustitución'+(ps>1?'es':'')+' esperan respuesta.  ';
+    if(pg>0) msg+=pg+' gestión'+(pg>1?'es':'')+' esperan respuesta.';
+    alr.innerHTML=msg;
+  } else {
+    alr.style.display='none';
+  }
+}
+
+function setBadge(id,n,urg){
+  var b=document.getElementById(id);
+  b.style.display=n>0?'flex':'none';
+  b.textContent=n;
+  b.className='badge'+(urg?' urg':'');
+}
+
+/* ══════════════════════════════════════════════════════
+   JUZGADOS
+══════════════════════════════════════════════════════ */
+var COURTS = [
+  {ico:'⚖️',n:'1ª Instancia · TI Madrid',a:'Rosario Pino, 5 / Juan Maragall, 66',k:'54 plazas · antiguas 48–103 y 31–32',det:'Tribunal de Instancia. Sección Civil. Plazas tramitación: SCT. Plazas ejecución: SCEJ.'},
+  {ico:'🔎',n:'Instrucción · TI Madrid',a:'Plaza de Castilla, 1',k:'54 secciones de instrucción',det:'Email: SCEI.instrucXXX@madrid.org · Planta varía por número.'},
+  {ico:'🔨',n:'Juzgados de lo Penal',a:'Julián Camarillo, 11',k:'39 juzgados (nº 1–39)',det:'Email: penalXmad@madrid.org · Algunos son de Ejecutorias.'},
+  {ico:'👨‍👩‍👧',n:'Familia · Infancia · Capacidad',a:'Francisco Gervás, 10',k:'Especializados en familia y capacidad',det:'Especialización desde 2024. Consultar planta por juzgado.'},
+  {ico:'🏛️',n:'Contencioso-Administrativo',a:'Gran Vía, 19',k:'27 juzgados (nº 1–27)',det:'Email: jcantencioso.XmadridXXX@madrid.org'},
+  {ico:'💼',n:'Mercantil',a:'Gran Vía, 52',k:'18 juzgados de lo mercantil',det:'Email: mercantilXmad@madrid.org'},
+  {ico:'👷',n:'Social',a:'Princesa, 3',k:'Hasta 50 juzgados de lo social',det:'Email: socialXmad@madrid.org'},
+  {ico:'🛡️',n:'Violencia sobre la Mujer',a:'Albarracín, 31 / Julián Camarillo',k:'7 juzgados especializados VVSM',det:'Email: juzgadoviolenciaX.madrid@madrid.org'},
+  {ico:'👶',n:'Menores',a:'García Noblejas, 37',k:'6 juzgados de menores',det:''},
+  {ico:'🔒',n:'Vigilancia Penitenciaria',a:'Plaza de Castilla, 1',k:'6 juzgados · email: vigipenX@madrid.org',det:''},
+  {ico:'📍',n:'Alcalá de Henares',a:'Plaza de Palacio, 4',k:'Partido judicial: Alcalá de Henares',det:'Juzgados de 1ª Instancia, Instrucción, Penal y Social.'},
+  {ico:'📍',n:'Getafe',a:'C/ Ramón Gordillo, 1',k:'Partido judicial: Getafe',det:''},
+  {ico:'📍',n:'Leganés',a:'C/ Brasil, 4',k:'Partido judicial: Leganés',det:''},
+  {ico:'📍',n:'Móstoles',a:'C/ Presa del Rey, 1',k:'Partido judicial: Móstoles',det:''},
+  {ico:'📍',n:'Alcorcón',a:'C/ Ramírez de Arellano, 1',k:'Partido judicial: Alcorcón',det:''},
+  {ico:'📍',n:'Fuenlabrada',a:'C/ Prolongación Leganés, s/n',k:'Partido judicial: Fuenlabrada',det:''},
+  {ico:'📍',n:'Torrejón de Ardoz',a:'C/ Virgen de la Soledad, 6',k:'Partido judicial: Torrejón',det:''},
+  {ico:'📍',n:'Parla',a:'C/ Luchana, 1',k:'Partido judicial: Parla',det:''},
+  {ico:'📍',n:'Collado Villalba',a:'C/ Ntra. Sra. del Rosario, 4',k:'Partido judicial: Collado Villalba',det:''},
+  {ico:'📍',n:'Pozuelo de Alarcón',a:'C/ Anabel Segura, 2',k:'Partido judicial: Pozuelo',det:''},
+];
+
+function renderCourts(q){
+  var fl = q ? COURTS.filter(function(c){
+    return c.n.toLowerCase().includes(q.toLowerCase())||c.a.toLowerCase().includes(q.toLowerCase())||c.k.toLowerCase().includes(q.toLowerCase());
+  }) : COURTS;
+  var html = fl.length ? fl.map(function(c){
+    return '<div class="court-item"><span class="court-emo">'+c.ico+'</span><div style="flex:1"><div class="court-n">'+c.n+'</div><div class="court-a">'+c.a+'</div><div class="court-k">'+c.k+'</div>'+(c.det?'<div style="font-size:11px;color:var(--tx3);margin-top:2px">'+c.det+'</div>':'')+'</div><span class="court-chv">›</span></div>';
+  }).join('') : '<div class="empty"><span class="empty-ico">🔍</span>Sin resultados para "'+q+'"</div>';
+  document.getElementById('court-list').innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════
+   PLAZOS — lógica completa LexNet
+══════════════════════════════════════════════════════ */
+var TIPO_NOTIF = 'p', TIPO_DIAS = 'h';
+
+// Festivos Madrid 2025-2027
+var HOLS = new Set([
+  '2025-01-01','2025-01-06','2025-04-17','2025-04-18','2025-05-01','2025-05-02',
+  '2025-08-15','2025-10-12','2025-11-01','2025-11-10','2025-12-06','2025-12-08','2025-12-25',
+  '2026-01-01','2026-01-06','2026-03-19','2026-04-02','2026-04-03','2026-05-01','2026-05-02',
+  '2026-05-15','2026-08-15','2026-10-12','2026-11-01','2026-11-09','2026-12-06','2026-12-08','2026-12-25',
+  '2027-01-01','2027-01-06','2027-03-25','2027-03-26','2027-05-01','2027-05-02',
+  '2027-08-15','2027-10-12','2027-11-01','2027-12-06','2027-12-08','2027-12-25'
+]);
+
+function yfmt(d){ // yyyy-mm-dd
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function addDays(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function isHabil(d){var w=d.getDay();return w!==0&&w!==6&&!HOLS.has(yfmt(d));}
+function nextHabil(d){var r=new Date(d);do{r=addDays(r,1);}while(!isHabil(r));return r;}
+function addHabiles(d,n){var r=new Date(d),c=0;while(c<n){r=addDays(r,1);if(isHabil(r))c++;}return r;}
+function isAgosto(d){return d.getMonth()===7;}
+function fmtFull(d){return d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+
+function setT(t){
+  TIPO_NOTIF=t;
+  document.getElementById('tp-p').className='tb'+(t==='p'?' on':'');
+  document.getElementById('tp-l').className='tb'+(t==='l'?' on':'');
+  var hg=document.getElementById('hour-grp');
+  var dg=document.getElementById('date-grid');
+  hg.style.display=t==='l'?'block':'none';
+  dg.style.gridTemplateColumns=t==='l'?'1fr 1fr':'1fr';
+  var notes={
+    p:'📄 Notificación en <strong>papel / correo</strong>: el plazo empieza a contar a partir del siguiente día <strong>hábil</strong> tras la recepción.',
+    l:'💻 <strong>LexNet:</strong> Si se recibe <strong>antes de las 15:00 h</strong> → considerada notificada el siguiente día hábil; el plazo empieza el día hábil siguiente a esa notificación.<br>Si se recibe <strong>a las 15:00 h o después</strong> → considerada notificada en día de recepción +2 días naturales; el plazo empieza el siguiente día hábil.'
+  };
+  document.getElementById('tnote').innerHTML=notes[t];
+  document.getElementById('plz-res').style.display='none';
+}
+
+function setTD(t){
+  TIPO_DIAS=t;
+  document.getElementById('td-h').className='tb'+(t==='h'?' on':'');
+  document.getElementById('td-n').className='tb'+(t==='n'?' on':'');
+  document.getElementById('plz-res').style.display='none';
+}
+
+function calcP(){
+  var err=document.getElementById('plz-err');
+  var res=document.getElementById('plz-res');
+  err.style.display='none'; res.style.display='none';
+
+  var fs=document.getElementById('pf').value;
+  if(!fs){err.textContent='⚠️ Debes introducir la fecha de recepción.';err.style.display='block';return;}
+
+  var parts=fs.split('-').map(Number);
+  var recv=new Date(parts[0],parts[1]-1,parts[2]); // sin zona horaria
+
+  var n=parseInt(document.getElementById('pd').value)||1;
+  if(n<1||n>365){err.textContent='⚠️ El plazo debe estar entre 1 y 365.';err.style.display='block';return;}
+
+  var notif, inicio, ante15=null, nota='';
+
+  if(TIPO_NOTIF==='p'){
+    // Papel: plazo empieza el siguiente día hábil tras recepción
+    notif = recv;
+    inicio = nextHabil(recv);
+    nota = '📄 Notificación en papel. El plazo empieza el primer día hábil siguiente a la recepción.';
+  } else {
+    var hs=document.getElementById('ph').value||'12:00';
+    var hm=hs.split(':').map(Number);
+    var mins=hm[0]*60+(hm[1]||0);
+    ante15 = (mins < 15*60); // antes de las 15:00
+
+    if(ante15){
+      // Antes de las 15:00 → notificada el siguiente día hábil
+      // El plazo empieza el siguiente día hábil al de notificación
+      notif = nextHabil(recv);
+      inicio = nextHabil(notif);
+      nota = '💻 LexNet antes de las 15:00. Considerada notificada el <strong>siguiente día hábil</strong> tras la recepción. El plazo empieza el día hábil siguiente a esa notificación.';
+    } else {
+      // Desde las 15:00 → notificada el día de recepción + 2 días naturales
+      // Ese día ha de ser hábil; si no, el siguiente hábil
+      var raw = addDays(recv, 2);
+      // Si recepción + 2 cae en inhábil, se pasa al siguiente hábil
+      notif = isHabil(raw) ? raw : nextHabil(addDays(raw,-1)); // ojo: +2 es fijo, pero si cae en festivo/fin de semana se traslada al sig hábil
+      // Según la norma: el día de recepción + 2 días naturales SE CONSIDERA notificada
+      // Si ese día es inhábil, el siguiente hábil
+      if(!isHabil(addDays(recv,2))) notif = nextHabil(addDays(recv,1));
+      else notif = addDays(recv,2);
+      inicio = nextHabil(notif);
+      nota = '💻 LexNet a las <strong>'+hs+'</strong> (a partir de las 15:00). Considerada notificada el <strong>día de recepción + 2 días naturales</strong>. El plazo empieza el siguiente día hábil.';
+    }
+  }
+
+  // Calcular fin de plazo
+  var fin;
+  if(TIPO_DIAS==='h'){
+    fin = addHabiles(inicio, n-1); // inicio cuenta como día 1
+  } else {
+    fin = addDays(inicio, n-1);
+    // Si el día natural final cae en inhábil, el último día válido es el anterior hábil
+    // (en rigor procesal el plazo expira aunque sea inhábil si son días naturales,
+    //  pero se puede presentar hasta el día hábil siguiente — aquí mostramos ambas opciones)
+  }
+
+  // ¿Algún momento del cálculo cae en agosto?
+  var augWarn = '';
+  var checkDate = new Date(inicio);
+  var maxCheck = new Date(fin); maxCheck.setDate(maxCheck.getDate()+1);
+  while(checkDate <= maxCheck){
+    if(isAgosto(checkDate)){
+      augWarn='<div class="warn-box">⚠️ <strong>Atención agosto:</strong> El art. 182 LOPJ declara agosto inhábil para la mayoría de actuaciones procesales. Verifica si tu procedimiento está sujeto a esta regla.</div>';
+      break;
+    }
+    checkDate = addDays(checkDate,1);
+  }
+
+  var finInhabil = !isHabil(fin) ? '<br><small style="color:var(--tx2)">Si cae en día inhábil, se presenta el siguiente día hábil: <strong>'+fmtFull(nextHabil(addDays(fin,-1)))+'</strong></small>' : '';
+
+  res.innerHTML=
+    '<div class="rcard">'+
+    '<div class="rcard-title">📊 Resultado del cálculo</div>'+
+    mkRRow('📬','Notificación recibida',fmtFull(recv)+(TIPO_NOTIF==='l'?' · <strong>'+hs+'</strong>':''),'','')+
+    mkRRow('📌','Considerada notificada el',fmtFull(notif),'gd','')+
+    mkRRow('▶️','Inicio del plazo (día 1)',fmtFull(inicio),'nv','')+
+    '<hr class="rdiv">'+
+    mkRRow('🏁','Vencimiento · '+n+' día'+(n>1?'s':'')+(TIPO_DIAS==='h'?' hábiles':' naturales'),fmtFull(fin)+finInhabil,'rd lg','')+
+    '<div class="inn" style="margin-top:14px;margin-bottom:0">'+nota+'</div>'+
+    augWarn+
+    '</div>';
+  res.style.display='block';
+  res.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function mkRRow(ico,lb,val,cls,_){
+  return '<div class="rrow"><span class="rico">'+ico+'</span><div><div class="rl">'+lb+'</div><div class="rv '+cls+'">'+val+'</div></div></div>';
+}
+
+/* ══════════════════════════════════════════════════════
+   SUSTITUCIONES
+══════════════════════════════════════════════════════ */
+function toggleSF(){
+  var f=document.getElementById('sf-form');
+  var b=document.getElementById('sf-btn');
+  var op=f.style.display!=='none';
+  f.style.display=op?'none':'block';
+  b.className='btn-exp'+(op?'':' op');
+  b.textContent=op?'➕ Nueva solicitud de sustitución':'✕ Cancelar';
+}
+
+function addSust(){
+  var fecha=document.getElementById('sf-f').value;
+  var juz=document.getElementById('sf-j').value.trim();
+  if(!fecha){showToast('⚠️ Indica la fecha');return;}
+  if(!juz){showToast('⚠️ Indica el juzgado');return;}
+  SUST.unshift({
+    id:Date.now(),
+    f:fecha, h:document.getElementById('sf-h').value,
+    j:juz, t:document.getElementById('sf-t').value,
+    e:'pendiente', u:document.getElementById('sf-u').checked,
+    sol:ME, ab:'', n:document.getElementById('sf-n').value.trim()
+  });
+  saveSust();
+  document.getElementById('sf-f').value='';
+  document.getElementById('sf-j').value='';
+  document.getElementById('sf-n').value='';
+  document.getElementById('sf-u').checked=false;
+  document.getElementById('sf-urg').className='urg-chk';
+  toggleSF();
+  renderSust();
+  renderHub();
+  showToast('✅ Solicitud enviada');
+}
+
+function actSust(id,e){
+  SUST=SUST.map(function(x){
+    if(x.id!==id) return x;
+    return Object.assign({},x,{e:e,ab:(e==='aceptada'?ME:x.ab)});
+  });
+  saveSust();renderSust();renderHub();
+  if(CUR==='mis')renderMis();
+  showToast(e==='aceptada'?'✅ Sustitución aceptada':'❌ Rechazada');
+}
+
+function marcarSustHecha(id){
+  SUST=SUST.map(function(x){return x.id===id?Object.assign({},x,{e:'completada'}):x});
+  saveSust();renderSust();renderHub();
+  if(CUR==='mis')renderMis();
+  showToast('✅ Marcada como realizada');
+}
+
+function renderSust(){
+  var el=document.getElementById('sust-list');
+  if(!SUST.length){el.innerHTML='<div class="empty"><span class="empty-ico">🔄</span>No hay solicitudes de sustitución</div>';return;}
+  var today=new Date();today.setHours(0,0,0,0);
+  var html=SUST.map(function(x){
+    return liItem(x,'sust',today);
+  }).join('');
+  el.innerHTML=html;
+}
+
+/* ══════════════════════════════════════════════════════
+   GESTIONES
+══════════════════════════════════════════════════════ */
+function toggleGF(){
+  var f=document.getElementById('gf-form');
+  var b=document.getElementById('gf-btn');
+  var op=f.style.display!=='none';
+  f.style.display=op?'none':'block';
+  b.className='btn-exp'+(op?'':' op');
+  b.textContent=op?'➕ Nuevo encargo':'✕ Cancelar';
+}
+
+function addGest(){
+  var juz=document.getElementById('gf-j').value.trim();
+  if(!juz){showToast('⚠️ Indica el juzgado');return;}
+  GEST.unshift({
+    id:Date.now(),
+    t:document.getElementById('gf-t').value,
+    j:juz, p:document.getElementById('gf-p').value,
+    e:'pendiente', u:document.getElementById('gf-u').checked,
+    sol:ME, ab:'', n:document.getElementById('gf-n').value.trim()
+  });
+  saveGest();
+  document.getElementById('gf-j').value='';
+  document.getElementById('gf-p').value='';
+  document.getElementById('gf-n').value='';
+  document.getElementById('gf-u').checked=false;
+  document.getElementById('gf-urg').className='urg-chk';
+  toggleGF();
+  renderGest();
+  renderHub();
+  showToast('✅ Encargo enviado');
+}
+
+function actGest(id,e){
+  GEST=GEST.map(function(x){
+    if(x.id!==id) return x;
+    return Object.assign({},x,{e:e,ab:(e==='aceptada'||e==='completada'?ME:x.ab)});
+  });
+  saveGest();renderGest();renderHub();
+  if(CUR==='mis')renderMis();
+  showToast(e==='aceptada'?'✅ Encargo aceptado':e==='completada'?'✅ Marcado como completado':'❌ Rechazado');
+}
+
+function renderGest(){
+  var el=document.getElementById('gest-list');
+  if(!GEST.length){el.innerHTML='<div class="empty"><span class="empty-ico">📋</span>No hay encargos</div>';return;}
+  var today=new Date();today.setHours(0,0,0,0);
+  var html=GEST.map(function(x){
+    return liItem(x,'gest',today);
+  }).join('');
+  el.innerHTML=html;
+}
+
+/* ══════════════════════════════════════════════════════
+   LI ITEM — shared renderer
+══════════════════════════════════════════════════════ */
+function liItem(x,tipo,today){
+  var sc={pendiente:'pn',aceptada:'ac',completada:'cp',rechazada:'rj',cancelada:'cl'}[x.e]||'pn';
+  var plTxt={
+    pendiente:'⏳ Pendiente', aceptada:'✅ Aceptada',
+    completada:'✅ Realizada', rechazada:'❌ Rechazada', cancelada:'❌ Cancelada'
+  }[x.e]||x.e;
+
+  var isUrgPend = x.u && x.e==='pendiente';
+  var isMine = x.sol===ME;
+  var iDo = x.ab===ME;
+
+  // Fecha vencida (gestiones)
+  var expired = tipo==='gest' && x.p && (new Date(x.p+'T00:00:00')<today) && x.e==='pendiente';
+
+  var top = tipo==='sust'
+    ? x.j + '<br><span style="font-size:12px;font-weight:400;color:var(--tx2)">📅 '+x.f+' · 🕐 '+x.h+' · '+x.t+'</span>'
+    : x.t + '<br><span style="font-size:12px;font-weight:400;color:var(--tx2)">🏛 '+x.j+'</span>'+(x.p?'<br><span style="font-size:12px;font-weight:400;color:'+(expired?'var(--rd)':'var(--tx2)')+'">📅 Plazo: '+x.p+(expired?' ⚠️ <strong>VENCIDO</strong>':'')+'</span>':'');
+
+  var pills='';
+  if(isUrgPend) pills+='<span class="pill p-ur">🔴 URGENTE</span>';
+  pills+='<span class="pill p-'+sc+'">'+plTxt+'</span>';
+
+  var footer='';
+  if(isMine) footer='<div class="lftr">Solicitado por: <strong>'+ME+'</strong>'+(x.ab?' · Cubierto por: <strong>'+x.ab+'</strong>':'')+'</div>';
+  else footer='<div class="lftr">Solicitado por: <strong>'+x.sol+'</strong>'+(x.ab?' · Aceptado por: <strong>'+x.ab+'</strong>':'')+'</div>';
+
+  var btns='';
+  if(x.e==='pendiente' && !isMine){
+    // Otro me pide → puedo aceptar o rechazar
+    if(tipo==='sust'){
+      btns='<div class="lact"><button class="btn-acc" onclick="actSust('+x.id+',\'aceptada\')">✓ Aceptar</button><button class="btn-rej" onclick="actSust('+x.id+',\'rechazada\')">✗ Rechazar</button></div>';
+    } else {
+      btns='<div class="lact"><button class="btn-acc" onclick="actGest('+x.id+',\'aceptada\')">✓ Aceptar</button><button class="btn-rej" onclick="actGest('+x.id+',\'cancelada\')">✗ Rechazar</button></div>';
+    }
+  } else if(iDo && x.e==='aceptada'){
+    // Yo la he aceptado y está pendiente de hacer
+    if(tipo==='sust'){
+      btns='<div class="lact"><button class="btn-done" onclick="marcarSustHecha('+x.id+')">✅ Marcar como realizada</button></div>';
+    } else {
+      btns='<div class="lact"><button class="btn-done" onclick="actGest('+x.id+',\'completada\')">✅ Marcar como completada</button></div>';
+    }
+  }
+
+  return '<div class="li '+sc+(isUrgPend?' ur':'')+'">'+
+    '<div class="lh"><div class="lt" style="flex:1;margin-right:8px">'+top+'</div><div class="lbs">'+pills+'</div></div>'+
+    (x.n?'<div class="lnote">"'+x.n+'"</div>':'')+
+    footer+btns+
+    '</div>';
+}
+
+/* ══════════════════════════════════════════════════════
+   MIS SOLICITUDES
+══════════════════════════════════════════════════════ */
+var MIS_TAB = 'a';
+function setMisTab(t){
+  MIS_TAB=t;
+  document.getElementById('mt-a').className='tab-btn'+(t==='a'?' on':'');
+  document.getElementById('mt-b').className='tab-btn'+(t==='b'?' on':'');
+  renderMis();
+}
+
+function renderMis(){
+  var el=document.getElementById('mis-list');
+  var today=new Date();today.setHours(0,0,0,0);
+  var html='';
+
+  if(MIS_TAB==='a'){
+    // Lo que he pedido yo
+    var ms=SUST.filter(function(x){return x.sol===ME});
+    var mg=GEST.filter(function(x){return x.sol===ME});
+    if(!ms.length&&!mg.length){
+      el.innerHTML='<div class="empty"><span class="empty-ico">📤</span>Aún no has hecho ninguna solicitud</div>';return;
+    }
+    if(ms.length){
+      html+='<div class="sec-lbl">Sustituciones solicitadas</div>';
+      html+=ms.map(function(x){
+        var sc={pendiente:'pn',aceptada:'ac',rechazada:'rj',completada:'cp'}[x.e]||'pn';
+        var pl={pendiente:'⏳ Esperando respuesta',aceptada:'✅ Aceptada',rechazada:'❌ Rechazada',completada:'✅ Realizada'}[x.e];
+        return '<div class="li '+sc+'">'+
+          '<div class="lh"><div class="lt" style="flex:1;margin-right:8px">'+x.j+'<br><span style="font-size:12px;font-weight:400;color:var(--tx2)">📅 '+x.f+' · 🕐 '+x.h+' · '+x.t+'</span></div>'+
+          '<div class="lbs"><span class="pill p-'+sc+'">'+pl+'</span></div></div>'+
+          (x.ab?'<div class="lftr">Cubierto por: <strong>'+x.ab+'</strong></div>':'')+
+          (x.n?'<div class="lnote">"'+x.n+'"</div>':'')+
+          '</div>';
+      }).join('');
+    }
+    if(mg.length){
+      html+='<div class="sec-lbl">Gestiones solicitadas</div>';
+      html+=mg.map(function(x){
+        var sc={pendiente:'pn',aceptada:'ac',completada:'cp',cancelada:'cl'}[x.e]||'pn';
+        var pl={pendiente:'⏳ Esperando respuesta',aceptada:'🟡 En curso',completada:'✅ Completada',cancelada:'❌ Cancelada'}[x.e]||x.e;
+        var expired=x.p&&(new Date(x.p+'T00:00:00')<today)&&x.e==='pendiente';
+        return '<div class="li '+sc+(expired?' ur':'')+'">'+
+          '<div class="lh"><div class="lt" style="flex:1;margin-right:8px">'+x.t+'<br><span style="font-size:12px;font-weight:400;color:var(--tx2)">🏛 '+x.j+'</span>'+(x.p?'<br><span style="font-size:12px;font-weight:400;color:'+(expired?'var(--rd)':'var(--tx2)')+'">📅 Plazo: '+x.p+(expired?' ⚠️ VENCIDO':'')+'</span>':'')+'</div>'+
+          '<div class="lbs"><span class="pill p-'+sc+'">'+pl+'</span></div></div>'+
+          (x.ab?'<div class="lftr">Gestionado por: <strong>'+x.ab+'</strong></div>':'')+
+          '</div>';
+      }).join('');
+    }
+  } else {
+    // Lo que tengo que hacer (lo que acepté)
+    var ts=SUST.filter(function(x){return x.ab===ME});
+    var tg=GEST.filter(function(x){return x.ab===ME});
+    if(!ts.length&&!tg.length){
+      el.innerHTML='<div class="empty"><span class="empty-ico">📥</span>No tienes ninguna tarea asignada actualmente</div>';return;
+    }
+    if(ts.length){
+      html+='<div class="sec-lbl">Vistas que has aceptado</div>';
+      html+=ts.map(function(x){
+        var sc={aceptada:'ac',completada:'cp'}[x.e]||'ac';
+        var pl={aceptada:'🟡 Pendiente de realizar',completada:'✅ Realizada'}[x.e]||x.e;
+        return '<div class="li '+sc+'">'+
+          '<div class="lh"><div class="lt" style="flex:1;margin-right:8px">'+x.j+'<br><span style="font-size:12px;font-weight:400;color:var(--tx2)">📅 '+x.f+' · 🕐 '+x.h+' · '+x.t+'</span></div>'+
+          '<div class="lbs"><span class="pill p-'+sc+'">'+pl+'</span></div></div>'+
+          '<div class="lftr">Solicitud de: <strong>'+x.sol+'</strong></div>'+
+          (x.e==='aceptada'?'<div class="lact"><button class="btn-done" onclick="marcarSustHecha('+x.id+');setMisTab(\'b\')">✅ Marcar como realizada</button></div>':'')+
+          '</div>';
+      }).join('');
+    }
+    if(tg.length){
+      html+='<div class="sec-lbl">Gestiones que has aceptado</div>';
+      html+=tg.map(function(x){
+        var expired=x.p&&(new Date(x.p+'T00:00:00')<today)&&x.e==='aceptada';
+        var sc={aceptada:'ac',completada:'cp'}[x.e]||'ac';
+        var pl={aceptada:'🟡 En curso',completada:'✅ Completada'}[x.e]||x.e;
+        return '<div class="li '+sc+(expired?' ur':'')+'">'+
+          '<div class="lh"><div class="lt" style="flex:1;margin-right:8px">'+x.t+'<br><span style="font-size:12px;font-weight:400;color:var(--tx2)">🏛 '+x.j+'</span>'+(x.p?'<br><span style="font-size:12px;font-weight:400;color:'+(expired?'var(--rd)':'var(--tx2)')+'">📅 Plazo: '+x.p+(expired?' ⚠️ VENCIDO':'')+'</span>':'')+'</div>'+
+          '<div class="lbs"><span class="pill p-'+sc+'">'+pl+'</span></div></div>'+
+          '<div class="lftr">Solicitud de: <strong>'+x.sol+'</strong></div>'+
+          (x.e==='aceptada'?'<div class="lact"><button class="btn-done" onclick="actGest('+x.id+',\'completada\');setMisTab(\'b\')">✅ Marcar como completada</button></div>':'')+
+          '</div>';
+      }).join('');
+    }
+  }
+  el.innerHTML=html;
+}
+
+/* ══════════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════════ */
+function toggleUrgChk(labelId, cb){
+  document.getElementById(labelId).className='urg-chk'+(cb.checked?' on':'');
+}
+
+var _toastTimer;
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(function(){t.classList.remove('show')},2600);
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('on');}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+(function init(){
+  // Fecha de hoy en los date pickers
+  var hoy=new Date();
+  var k=hoy.getFullYear()+'-'+('0'+(hoy.getMonth()+1)).slice(-2)+'-'+('0'+hoy.getDate()).slice(-2);
+  document.getElementById('pf').value=k;
+  document.getElementById('ph').value=('0'+hoy.getHours()).slice(-2)+':'+('0'+hoy.getMinutes()).slice(-2);
+  document.getElementById('sf-f').value=k;
+  setT('p');
+  renderHub();
+})();
+</script>
+</body>
+</html>
